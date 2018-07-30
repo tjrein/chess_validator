@@ -52,26 +52,63 @@ def check_moves(piece_type, position, value_map, chess_board):
 
     return legal_moves
 
-def get_moveset(piece_type, indices):
+def get_deterministic_moves(move_patterns, indices):
+    potential_moves = []
     i, j = indices
-
-    return {
-        "K": [[i-1, j+1], [i, j+1], [i+1, j+1], [i-1, j], [i+1, j], [i-1, j-1], [i, j-1], [i+1, j-1]],
-        "B": get_bishop_moves(piece_type, indices)
-    }[piece_type]
-
-def get_bishop_moves(piece_type, indices):
-    i, j = indices
-    legal_moves = []
-    move_patterns = [[1, 1], [1, -1], [-1, +1], [-1, -1]
 
     for pattern in move_patterns:
         p0, p1 = pattern
         potential_move = [i+p0, j+p1]
-        k, l = potential_move
+        potential_moves.append(potential_move)
+
+
+    return potential_moves
+
+def get_indeterministic_moves(move_patterns, indices):
+    i, j = indices
+    potential_moves = []
+
+    for pattern in move_patterns:
+        p0, p1 = pattern
+        potential_move = [i+p0, j+p1]
         inbounds = True
 
         while inbounds:
+            k, l = potential_move
+            inbounds = 0 <= k <= 7 and 0 <= l <= 7
+
+            if inbounds:
+                potential_moves.append(potential_move)
+                potential_move = [k+p0, l+p1]
+
+    return potential_moves
+
+def get_moveset(piece_type, indices):
+    move_patterns = {
+        "K": [[-1, 1], [0, 1], [1, 1], [-1, 0], [1, 0], [-1, -1], [0, -1], [1, -1]],
+        "B": [[1, 1], [1, -1], [-1, +1], [-1, -1]],
+        "N": [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]],
+        "R": [[-1, 0], [1, 0], [0, 1], [1,0]]
+    }[piece_type]
+
+    if piece_type in ["K", "N"]:
+        return get_deterministic_moves(move_patterns, indices)
+
+    if piece_type in ["B", "Q", "R"]:
+        return get_indeterministic_moves(move_patterns, indices)
+
+def get_bishop_moves(indices):
+    i, j = indices
+    legal_moves = []
+    move_patterns = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
+
+    for pattern in move_patterns:
+        p0, p1 = pattern
+        potential_move = [i+p0, j+p1]
+        inbounds = True
+
+        while inbounds:
+            k, l = potential_move
             inbounds = 0 <= k <= 7 and 0 <= l <= 7
 
             if inbounds:
