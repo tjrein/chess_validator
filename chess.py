@@ -35,7 +35,7 @@ def output_moves(legal_moves, piece):
         letters[i] = chr(97+i)
         numbers[i] = str(i+1)
 
-    result = " ".join([letters[move[0]] + numbers[move[1]] for move in legal_moves])
+    result = " ".join(sorted([letters[move[0]] + numbers[move[1]] for move in legal_moves]))
 
     print "LEGAL MOVES FOR " + piece + ": " + result
 
@@ -56,8 +56,29 @@ def get_moveset(piece_type, indices):
     i, j = indices
 
     return {
-        "K": [[i-1, j+1], [i, j+1], [i+1, j+1], [i-1, j], [i+1, j], [i-1, j-1], [i, j-1], [i+1, j-1]]
+        "K": [[i-1, j+1], [i, j+1], [i+1, j+1], [i-1, j], [i+1, j], [i-1, j-1], [i, j-1], [i+1, j-1]],
+        "B": get_bishop_moves(piece_type, indices)
     }[piece_type]
+
+def get_bishop_moves(piece_type, indices):
+    i, j = indices
+    legal_moves = []
+    move_patterns = [[1, 1], [1, -1], [-1, +1], [-1, -1]
+
+    for pattern in move_patterns:
+        p0, p1 = pattern
+        potential_move = [i+p0, j+p1]
+        k, l = potential_move
+        inbounds = True
+
+        while inbounds:
+            inbounds = 0 <= k <= 7 and 0 <= l <= 7
+
+            if inbounds:
+                legal_moves.append(potential_move)
+                potential_move = [k+p0, l+p1]
+
+    return legal_moves
 
 if __name__ == "__main__":
     main()
