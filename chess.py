@@ -85,11 +85,15 @@ def get_indeterministic_moves(move_patterns, indices, chess_board):
     return potential_moves
 
 def get_moveset(piece_type, indices, chess_board):
+    diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
+    xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]] 
+
     move_patterns = {
         "K": [[-1, 1], [0, 1], [1, 1], [-1, 0], [1, 0], [-1, -1], [0, -1], [1, -1]],
-        "B": [[1, 1], [1, -1], [-1, +1], [-1, -1]],
         "N": [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]],
-        "R": [[-1, 0], [1, 0], [0, 1], [0, -1]]
+        "B": diagonal_movement,
+        "R": xy_movement,
+        "Q": diagonal_movement + xy_movement,
     }[piece_type]
 
     if piece_type in ["K", "N"]:
