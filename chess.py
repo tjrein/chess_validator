@@ -1,21 +1,26 @@
 def main(black=[], white=[], piece=None):
-    white = ['Rf1', 'Kg1', 'Pf2', 'Ph2', 'Pg3', 'Bf5']
-    black = ['Kb8', 'Be8', 'Pa7', 'Pb7', 'Pc7', 'Ra5']
+    white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
+    black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Ra5']
 
     chess_board = [[0 for i in range(8)] for j in range(8)]
     value_map = generate_value_map()
-    piece = 'Kb8'
+    piece = 'Kg1'
     map_initial_values(white, black, value_map, chess_board)
     legal_moves = check_moves(piece[0:1], piece[1:], value_map, chess_board)
     output_moves(legal_moves, piece)
 
 def map_initial_values(white, black, value_map, chess_board):
-    for color in (black, white):
+    for i, color in enumerate([black, white]):
+        char = { 0: 'B', 1: 'W'}[i]
+
         for played_piece in color:
             piece_type = played_piece[0:1]
             position = played_piece[1:]
-            indices = [value_map[i] for i in position]
-            chess_board[indices[1]][indices[0]] = piece_type
+            indices = [value_map[j] for j in position]
+            k, l = indices
+            chess_board[l][k] = (piece_type, char) 
+
+    print chess_board
 
 def generate_value_map():
     value_map = {}
@@ -29,7 +34,6 @@ def generate_value_map():
 def output_moves(legal_moves, piece):
     numbers = {}
     letters = {}
-    result = []
 
     for i in range(8):
         letters[i] = chr(97+i)
@@ -84,20 +88,24 @@ def get_indeterministic_moves(move_patterns, indices, chess_board):
 
     return potential_moves
 
-def get_moveset(piece_type, indices, chess_board):
+def check_moves(piece_type, position, value_map, chess_board):
+    indices = [value_map[i] for i in position]
     diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
     xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]] 
+
+    print indices
 
     move_patterns = {
         "K": [[-1, 1], [0, 1], [1, 1], [-1, 0], [1, 0], [-1, -1], [0, -1], [1, -1]],
         "N": [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]],
+        "P": [[0, 1]],
         "B": diagonal_movement,
         "R": xy_movement,
-        "Q": diagonal_movement + xy_movement,
+        "Q": diagonal_movement + xy_movement
     }[piece_type]
 
-    if piece_type in ["K", "N"]:
-        return get_deterministic_moves(move_patterns, indices)
+    if piece_type in ["K", "N", "P"]:
+        return get_deterministic_moves(move_patterns, indices, chess_board)
 
     if piece_type in ["B", "Q", "R"]:
         return get_indeterministic_moves(move_patterns, indices, chess_board)
