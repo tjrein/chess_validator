@@ -43,48 +43,52 @@ def output_moves(legal_moves, piece):
 
     print "LEGAL MOVES FOR " + piece + ": " + result
 
-def check_moves(piece_type, position, value_map, chess_board):
-    legal_moves = []
-    indices = [value_map[i] for i in position]
-    moveset = get_moveset(piece_type, indices, chess_board)
-
-    for move in moveset:
-        inbounds = 0 <= move[0] <= 7 and 0 <= move[1] <= 7 
-
-        if inbounds and not chess_board[move[1]][move[0]]:
-            legal_moves.append(move)
-
-    return legal_moves
-
-def get_deterministic_moves(move_patterns, indices):
+def get_deterministic_moves(move_patterns, indices, chess_board):
     potential_moves = []
     i, j = indices
+    piece, color = chess_board[j][i]
 
     for pattern in move_patterns:
         p0, p1 = pattern
         potential_move = [i+p0, j+p1]
-        potential_moves.append(potential_move)
+        k, l = potential_move
+
+        occupying_color = chess_board[l][k] and chess_board[l][k][1]
+        inbounds = 0 <= k <= 7 and 0 <= l <= 7 
+        valid_move = inbounds and color != occupying_color
+
+        if valid_move:
+            potential_moves.append(potential_move)
 
     return potential_moves
 
 def get_indeterministic_moves(move_patterns, indices, chess_board):
     i, j = indices
     potential_moves = []
+    piece, color = chess_board[j][i]
 
     for pattern in move_patterns:
         p0, p1 = pattern
         potential_move = [i+p0, j+p1]
+
         inbounds = True
         obstructed = False
 
         while inbounds and not obstructed:
             k, l = potential_move
-            inbounds = 0 <= k <= 7 and 0 <= l <= 7
-            obstructed = inbounds and chess_board[l][k]  
 
-            if inbounds and not obstructed:
+            inbounds = 0 <= k <= 7 and 0 <= l <= 7
+            occupying_color = inbounds and chess_board[l][k] and chess_board[l][k][1]
+            valid_move = inbounds and color != occupying_color
+
+            if valid_move:
                 potential_moves.append(potential_move)
                 potential_move = [k+p0, l+p1]
+
+                if occupying_color and occupying_color != color:
+                    obstructed = True
+            else:
+                obstructed = True
 
     return potential_moves
 
