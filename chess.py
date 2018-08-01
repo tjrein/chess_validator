@@ -41,20 +41,21 @@ def output_moves(legal_moves, piece):
 
     print "LEGAL MOVES FOR " + piece + ": " + result
 
-def validate_move(color, piece, pattern, chess_board, potential_move, potential_moves):
+def validate_move(color, piece, pattern, chess_board, potential_move, moves):
     k, l = potential_move
-    p0, p1 = pattern
     inbounds = 0 <= k <= 7 and 0 <= l <= 7 
     occupying_color = inbounds and chess_board[l][k] and chess_board[l][k][1]
     valid_move = inbounds and color != occupying_color
 
     if valid_move:
-        potential_moves.append(potential_move)
+        moves.append(potential_move)
 
     if piece in ['Q', 'B', 'R'] and inbounds and not occupying_color:
-        return validate_move(color, piece, pattern, chess_board, [k+p0, l+p1], potential_moves)
+        p0, p1 = pattern
+        potential_move = [k+p0, l+p1]
+        return validate_move(color, piece, pattern, chess_board, potential_move, moves)
     else:
-        return potential_moves
+        return moves
 
 def get_move_patterns(piece_type):
     diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
@@ -73,14 +74,14 @@ def get_move_patterns(piece_type):
 def get_moves(piece_type, position, value_map, chess_board):
     indices = [value_map[i] for i in position]
     move_patterns = get_move_patterns(piece_type)
-    potential_moves = []
+    moves = []
     i, j = indices
     piece, color = chess_board[j][i]
 
     for pattern in move_patterns:
         p0, p1 = pattern
         potential_move = [i+p0, j+p1]
-        legal_moves = validate_move(color, piece, pattern, chess_board, potential_move, potential_moves)
+        legal_moves = validate_move(color, piece, pattern, chess_board, potential_move, moves)
 
     return legal_moves
 
