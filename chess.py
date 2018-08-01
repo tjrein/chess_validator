@@ -6,7 +6,7 @@ def main(black=[], white=[], piece=None):
     value_map = generate_value_map()
     piece = 'Kg1'
     map_initial_values(white, black, value_map, chess_board)
-    legal_moves = check_moves(piece[0:1], piece[1:], value_map, chess_board)
+    legal_moves = get_moves(piece[0:1], piece[1:], value_map, chess_board)
     output_moves(legal_moves, piece)
 
 def map_initial_values(white, black, value_map, chess_board):
@@ -19,8 +19,6 @@ def map_initial_values(white, black, value_map, chess_board):
             indices = [value_map[j] for j in position]
             k, l = indices
             chess_board[l][k] = (piece_type, char) 
-
-    print chess_board
 
 def generate_value_map():
     value_map = {}
@@ -43,6 +41,21 @@ def output_moves(legal_moves, piece):
 
     print "LEGAL MOVES FOR " + piece + ": " + result
 
+def validate_move(color, piece, pattern, chess_board, potential_move, potential_moves):
+    k, l = potential_move
+    p0, p1 = pattern
+    inbounds = 0 <= k <= 7 and 0 <= l <= 7 
+    occupying_color = inbounds and chess_board[l][k] and chess_board[l][k][1]
+    valid_move = inbounds and color != occupying_color
+
+    if valid_move:
+        potential_moves.append(potential_move)
+
+    if piece in ['Q', 'B', 'R'] and inbounds and not occupying_color:
+        return validate_move(color, piece, pattern, chess_board, [k+p0, l+p1], potential_moves)
+    else:
+        return potential_moves
+
 def get_deterministic_moves(move_patterns, indices, chess_board):
     potential_moves = []
     i, j = indices
@@ -51,54 +64,13 @@ def get_deterministic_moves(move_patterns, indices, chess_board):
     for pattern in move_patterns:
         p0, p1 = pattern
         potential_move = [i+p0, j+p1]
-        k, l = potential_move
+        legal_moves = validate_move(color, piece, pattern, chess_board, potential_move, potential_moves)
 
-        occupying_color = chess_board[l][k] and chess_board[l][k][1]
-        inbounds = 0 <= k <= 7 and 0 <= l <= 7 
-        valid_move = inbounds and color != occupying_color
+    return legal_moves
 
-        if valid_move:
-            potential_moves.append(potential_move)
-
-    return potential_moves
-
-def get_indeterministic_moves(move_patterns, indices, chess_board):
-    i, j = indices
-    potential_moves = []
-    piece, color = chess_board[j][i]
-
-    for pattern in move_patterns:
-        p0, p1 = pattern
-        potential_move = [i+p0, j+p1]
-
-        inbounds = True
-        obstructed = False
-
-        while inbounds and not obstructed:
-            k, l = potential_move
-
-            inbounds = 0 <= k <= 7 and 0 <= l <= 7
-            occupying_color = inbounds and chess_board[l][k] and chess_board[l][k][1]
-            valid_move = inbounds and color != occupying_color
-
-            if valid_move:
-                potential_moves.append(potential_move)
-                potential_move = [k+p0, l+p1]
-
-                if occupying_color and occupying_color != color:
-                    obstructed = True
-            else:
-                obstructed = True
-
-    return potential_moves
-
-def check_moves(piece_type, position, value_map, chess_board):
-    indices = [value_map[i] for i in position]
+def get_move_patterns(piece_type):
     diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
     xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]] 
-
-    print indices
-
     move_patterns = {
         "K": [[-1, 1], [0, 1], [1, 1], [-1, 0], [1, 0], [-1, -1], [0, -1], [1, -1]],
         "N": [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]],
@@ -108,11 +80,21 @@ def check_moves(piece_type, position, value_map, chess_board):
         "Q": diagonal_movement + xy_movement
     }[piece_type]
 
-    if piece_type in ["K", "N", "P"]:
-        return get_deterministic_moves(move_patterns, indices, chess_board)
+    return move_patterns
 
-    if piece_type in ["B", "Q", "R"]:
-        return get_indeterministic_moves(move_patterns, indices, chess_board)
+def get_moves(piece_type, position, value_map, chess_board):
+    indices = [value_map[i] for i in position]
+    move_patterns = get_move_patterns(piece_type)
+    potential_moves = []
+    i, j = indices
+    piece, color = chess_board[j][i]
+
+    for pattern in move_patterns:
+        p0, p1 = pattern
+        potential_move = [i+p0, j+p1]
+        legal_moves = validate_move(color, piece, pattern, chess_board, potential_move, potential_moves)
+
+    return legal_moves
 
 if __name__ == "__main__":
     main()
