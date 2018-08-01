@@ -4,41 +4,44 @@ def main(black=[], white=[], piece=None):
 
     chess_board = [[0 for i in range(8)] for j in range(8)]
     value_map = generate_value_map()
-    piece = 'Kg1'
-    map_initial_values(white, black, value_map, chess_board)
-    legal_moves = get_moves(piece[0:1], piece[1:], value_map, chess_board)
-    output_moves(legal_moves, piece)
+    piece = 'Qa6'
+    map_initial_values(white, black, value_map['char_to_index'], chess_board)
+    legal_moves = get_moves(piece[0:1], piece[1:], value_map['char_to_index'], chess_board)
+    output_moves(legal_moves, piece, value_map)
 
-def map_initial_values(white, black, value_map, chess_board):
+def map_initial_values(white, black, values, chess_board):
     for i, color in enumerate([black, white]):
         char = { 0: 'B', 1: 'W'}[i]
 
         for played_piece in color:
             piece_type = played_piece[0:1]
             position = played_piece[1:]
-            indices = [value_map[j] for j in position]
+            indices = [values[j] for j in position]
             k, l = indices
             chess_board[l][k] = (piece_type, char) 
 
 def generate_value_map():
-    value_map = {}
+    value_map = {
+        'char_to_index': {},
+        'index_to_number': {},
+        'index_to_letter': {},
+    }
 
     for i in range(8):
-        value_map[chr(97+i)] = i
-        value_map[str(i+1)] = i
+        letter = chr(97+i)
+        number = str(i+1)
+
+        value_map['char_to_index'][letter] = i
+        value_map['char_to_index'][number] = i
+        value_map['index_to_number'][i] = number
+        value_map['index_to_letter'][i] = letter
 
     return value_map
 
-def output_moves(legal_moves, piece):
-    numbers = {}
-    letters = {}
-
-    for i in range(8):
-        letters[i] = chr(97+i)
-        numbers[i] = str(i+1)
-
+def output_moves(legal_moves, piece, value_map):
+    numbers = value_map['index_to_number']
+    letters = value_map['index_to_letter']
     result = " ".join(sorted([letters[move[0]] + numbers[move[1]] for move in legal_moves]))
-
     print "LEGAL MOVES FOR " + piece + ": " + result
 
 def validate_move(color, piece, pattern, chess_board, potential_move, moves):
@@ -53,7 +56,7 @@ def validate_move(color, piece, pattern, chess_board, potential_move, moves):
     if piece in ['Q', 'B', 'R'] and inbounds and not occupying_color:
         p0, p1 = pattern
         potential_move = [k+p0, l+p1]
-        return validate_move(color, piece, pattern, chess_board, potential_move, moves)
+        return validate_move(color, piece, pattern, chess_board, [k+p0, l+p1], moves)
     else:
         return moves
 
@@ -71,8 +74,8 @@ def get_move_patterns(piece_type):
 
     return move_patterns
 
-def get_moves(piece_type, position, value_map, chess_board):
-    indices = [value_map[i] for i in position]
+def get_moves(piece_type, position, values, chess_board):
+    indices = [values[i] for i in position]
     move_patterns = get_move_patterns(piece_type)
     moves = []
     i, j = indices
