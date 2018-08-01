@@ -56,18 +56,6 @@ def validate_move(color, piece, pattern, chess_board, potential_move, potential_
     else:
         return potential_moves
 
-def get_deterministic_moves(move_patterns, indices, chess_board):
-    potential_moves = []
-    i, j = indices
-    piece, color = chess_board[j][i]
-
-    for pattern in move_patterns:
-        p0, p1 = pattern
-        potential_move = [i+p0, j+p1]
-        legal_moves = validate_move(color, piece, pattern, chess_board, potential_move, potential_moves)
-
-    return legal_moves
-
 def get_move_patterns(piece_type):
     diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
     xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]] 
