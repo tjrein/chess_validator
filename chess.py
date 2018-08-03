@@ -62,19 +62,18 @@ def get_move_patterns(piece_type):
     return move_patterns
 
 def recurse_check(original_move, check_move, pat, chess_board, color, check_moves, check_pieces):
+    in_check = False
     y, z = check_move
 
     next_move = 0 <= z <= 7 and 0 <= y <= 7
     if next_move and original_move != check_move:
-        if not chess_board[z][y]:
-            return recurse_check(original_move, [y+pat[0], z+pat[1]], pat, chess_board, color, check_moves, check_pieces)
-        else:
+        if chess_board[z][y]:
             new_piece, new_color = chess_board[z][y]
+            in_check = new_color != color and new_piece in check_pieces
+        else:
+            return recurse_check(original_move, [y+pat[0], z+pat[1]], pat, chess_board, color, check_moves, check_pieces)
 
-            if new_color != color and new_piece in check_pieces:
-                    return True
-    else:
-        return False
+    return in_check
 
 
 def validate_check(original_move, potential_move, chess_board, color, check_moves, check_pieces):
