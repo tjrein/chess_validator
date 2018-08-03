@@ -1,18 +1,19 @@
 def main(black=[], white=[], piece=None):
-    white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
-    black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Ra5']
+    #white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
+    #black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Qa6']
+    white = ["Kg1"]
+    black = ["Qc6",  "Bf4" ]
 
     chess_board = [[0 for i in range(8)] for j in range(8)]
     value_map = generate_value_map()
-    piece = 'Qa6'
-    map_initial_values(white, black, value_map['char_to_index'], chess_board)
-    legal_moves = get_moves(piece[0:1], piece[1:], value_map['char_to_index'], chess_board)
+    piece = 'Kg1'
+    map_initial_values(white, black, value_map['chr_to_ind'], chess_board)
+    legal_moves = get_moves(piece[0:1], piece[1:], value_map['chr_to_ind'], chess_board)
     output_moves(legal_moves, piece, value_map)
 
 def map_initial_values(white, black, values, chess_board):
     for i, color in enumerate([black, white]):
-        char = { 0: 'B', 1: 'W'}[i]
-
+        char = {0: 'B', 1: 'W'}[i]
         for played_piece in color:
             piece_type = played_piece[0:1]
             position = played_piece[1:]
@@ -21,28 +22,29 @@ def map_initial_values(white, black, values, chess_board):
             chess_board[l][k] = (piece_type, char) 
 
 def generate_value_map():
-    value_map = {
-        'char_to_index': {},
-        'index_to_number': {},
-        'index_to_letter': {},
+    value_map = { 
+        'chr_to_ind': {}, 
+        'ind_to_num': {}, 
+        'ind_to_chr': {} 
     }
 
     for i in range(8):
         letter = chr(97+i)
         number = str(i+1)
 
-        value_map['char_to_index'][letter] = i
-        value_map['char_to_index'][number] = i
-        value_map['index_to_number'][i] = number
-        value_map['index_to_letter'][i] = letter
+        value_map['chr_to_ind'][letter] = i
+        value_map['chr_to_ind'][number] = i
+        value_map['ind_to_num'][i] = number
+        value_map['ind_to_chr'][i] = letter
 
     return value_map
 
 def output_moves(legal_moves, piece, value_map):
-    numbers = value_map['index_to_number']
-    letters = value_map['index_to_letter']
-    result = " ".join(sorted([letters[move[0]] + numbers[move[1]] for move in legal_moves]))
-    print "LEGAL MOVES FOR " + piece + ": " + result
+    numbers = value_map['ind_to_num']
+    letters = value_map['ind_to_chr']
+    values = " ".join(sorted([letters[move[0]] + numbers[move[1]] for move in legal_moves]))
+    message = "LEGAL MOVES FOR {0}: {1}".format(piece, values)
+    print message
 
 def get_move_patterns(piece_type):
     diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
@@ -61,6 +63,33 @@ def get_move_patterns(piece_type):
 
     return move_patterns
 
+def validate_check(valid_move, original_move, chess_board, potential_move, color):
+    k, l = potential_move
+    move_patterns = get_move_patterns('B')
+
+    for x, pat in enumerate(move_patterns):
+
+        check_move = [k+pat[0], l+pat[1]]
+        y, z = check_move
+
+        next_move = True
+        while next_move and original_move != check_move:
+            next_move = 0 <= z <= 7 and 0 <= y <= 7 
+
+            if next_move:
+                if not chess_board[z][y]:
+                    z += pat[1]
+                    y += pat[0]
+                else:
+                    new_piece, new_color = chess_board[z][y]
+
+                    if new_color != color and new_piece in ["B", "Q"]:
+                        valid_move = False
+
+                    next_move = False
+
+    return valid_move
+
 def validate_move(color, piece, pattern, chess_board, potential_move, moves, original_move):
     k, l = potential_move
     inbounds = 0 <= k <= 7 and 0 <= l <= 7 
@@ -68,28 +97,7 @@ def validate_move(color, piece, pattern, chess_board, potential_move, moves, ori
     valid_move = inbounds and color != occupying_color
 
     if valid_move and piece == 'K':
-        move_patterns = get_move_patterns('B')
-        pawn_capture = [[-1, 1], [1, 1]] 
-
-        for x, pat in enumerate(move_patterns):
-
-            check_move = [k+pat[0], l+pat[1]]
-            y, z = check_move
-
-            next_diagonal = True
-            while next_diagonal and original_move != check_move:
-                next_diagonal = 0 <= z <= 7 and 0 <= y <= 7 
-
-                if next_diagonal:
-                    if not chess_board[z][y]:
-                        z += pat[1]
-                        y += pat[0]
-                    else:
-                        new_piece, new_color = chess_board[z][y]
-                        if new_color != color and new_piece in ["B", "Q"]:
-                            valid_move = False
-
-                        next_diagonal = False
+        valid_move = validate_check(valid_move, original_move, chess_board, potential_move, color)
 
     if valid_move:
         moves.append(potential_move)
