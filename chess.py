@@ -78,19 +78,22 @@ def recurse_check(check_move, pat, chess_board, color, check_pieces):
     return in_check
 
 
-def validate_check(original_move, potential_move, chess_board, color, check_moves, check_pieces):
+def validate_check(original_move, potential_move, chess_board, color):
     k, l = potential_move
     in_check = False
 
-    for x, pat in enumerate(check_moves):
+    for piece in ['B', 'R', 'N']:
+        check_moves = get_move_patterns(piece)
+        check_pieces = [piece, 'Q'] if piece in ['B', 'R'] else ['N']
 
-        check_move = [k+pat[0], l+pat[1]]
+        for x, pat in enumerate(check_moves):
+            check_move = [k+pat[0], l+pat[1]]
 
-        if original_move != check_move:
-            in_check = recurse_check(check_move, pat, chess_board, color, check_pieces)
+            if original_move != check_move:
+                in_check = recurse_check(check_move, pat, chess_board, color, check_pieces)
 
-        if in_check:
-            return in_check
+            if in_check:
+                return in_check
 
     return False
 
@@ -101,15 +104,7 @@ def validate_move(color, piece, pattern, chess_board, potential_move, moves, ori
     valid_move = inbounds and color != occupying_color
 
     if valid_move and piece == 'K':
-        in_check = False
-        diagonal_moves = get_move_patterns('B')
-        xy_moves = get_move_patterns('R')
-        knight_moves = get_move_patterns('N')
-
-        in_check = validate_check(original_move, potential_move, chess_board, color, diagonal_moves, ['B', 'Q'])
-        knight_check = validate_check(original_move, potential_move, chess_board, color, knight_moves, ['N'])
-        xy_check = validate_check(original_move, potential_move, chess_board, color, xy_moves, ['R'])
-
+        in_check = validate_check(original_move, potential_move, chess_board, color)
         valid_move = not in_check
 
     if valid_move:
