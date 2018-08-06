@@ -49,10 +49,6 @@ def get_move_patterns(piece_type):
     diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
     xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]]
     knight_movement = [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]]
-    
-    white_pawn = [[0,1], [-1, 1], [1, 1]]
-    black_pawm = [[0, -1], [-1, -1], [1, -1]]
-
     move_patterns = {
         "P": [[0, 1]],
         "N": knight_movement,
@@ -64,6 +60,19 @@ def get_move_patterns(piece_type):
 
     return move_patterns
 
+def get_capture_patterns(piece, color):
+    capture_patterns = []
+
+    if piece == "P":
+       capture_patterns = {
+           "W": [[-1, 1], [1, 1]],
+           "B": [[-1, -1], [1, -1]]
+       }[color]
+    else:
+        capture_patterns = get_move_patterns(piece)
+
+    return capture_patterns
+
 def is_inbounds(i, j):
     return 0 <= i <= 7 and 0 <= j <= 7
 
@@ -74,7 +83,6 @@ def recurse_check(original_move, check_move, pat, chess_board, check_pieces):
     y, z = check_move
 
     if is_inbounds(y, z):
-        print "INBOUNDS"
         if chess_board[z][y]:
             new_piece, new_color = chess_board[z][y]
             in_check = new_color != color and new_piece in check_pieces
@@ -86,20 +94,13 @@ def recurse_check(original_move, check_move, pat, chess_board, check_pieces):
 
 
 def validate_check(original_move, potential_move, chess_board):
+    i, j = original_move
     k, l = potential_move
+    piece, color = chess_board[j][i]
     in_check = False
 
-    white_pawn = [[-1, 1], [1, 1]]
-    black_pawn = [[-1, -1], [1, -1]]
-
     for piece in ['P', 'B', 'R', 'N']:
-        check_moves = []
-
-        if piece == 'P':
-            check_moves = white_pawn
-        else:
-            check_moves = get_move_patterns(piece)
-
+        check_moves = get_capture_patterns(piece, color)
         check_pieces = [piece, 'Q'] if piece in ['B', 'R'] else [piece]
 
         for x, pat in enumerate(check_moves):
