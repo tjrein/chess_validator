@@ -1,26 +1,42 @@
-def main(black=[], white=[], piece=None):
+"""
+This module does so and so
+"""
+
+def main():
+    """
+    Main function todo docstring
+    """
+
     #white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
     #black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Qa6']
     white = ["Kg1"]
-    black = ["Qc6", "Bf4", "Pg2"]
+    black = ["Bf4", "Qc6"]
 
-    chess_board = [[0 for i in range(8)] for j in range(8)]
+    chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
     value_map = generate_value_map()
     piece = 'Kg1'
     map_initial_values(white, black, value_map['chr_to_ind'], chess_board)
-    legal_moves = get_moves(piece[0:1], piece[1:], value_map['chr_to_ind'], chess_board)
+    legal_moves = get_moves(piece[1:], value_map['chr_to_ind'], chess_board)
     output_moves(legal_moves, piece, value_map)
 
 def map_initial_values(white, black, values, chess_board):
-    for i, color in enumerate([black, white]):
-        char = {0: 'B', 1: 'W'}[i]
+    """
+    map_initial_values docstring Todo
+    """
+
+    for ind, color in enumerate([black, white]):
+        char = {0: 'B', 1: 'W'}[ind]
         for played_piece in color:
             piece_type = played_piece[0:1]
             position = played_piece[1:]
-            k, l = [values[j] for j in position]
-            chess_board[l][k] = (piece_type, char)
+            col, row = [values[j] for j in position]
+            chess_board[row][col] = (piece_type, char)
 
 def generate_value_map():
+    """
+    generate_value_map todo
+    """
+
     value_map = {
         'chr_to_ind': {},
         'ind_to_num': {},
@@ -39,6 +55,10 @@ def generate_value_map():
     return value_map
 
 def output_moves(legal_moves, piece, value_map):
+    """
+    output_moves todo
+    """
+
     numbers = value_map['ind_to_num']
     letters = value_map['ind_to_letter']
     values = " ".join(sorted([letters[move[0]] + numbers[move[1]] for move in legal_moves]))
@@ -46,10 +66,19 @@ def output_moves(legal_moves, piece, value_map):
     print message
 
 def get_move_patterns(piece_type, color):
+    """
+    get_move_patterns todo
+    """
+
     diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
     xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]]
     knight_movement = [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]]
-    pawn_movement = [[0, 1]] if color is 'W' else [[0, -1]]
+
+    pawn_movement = {
+        "W": [[0, 1]],
+        "B": [[0, -1]]
+    }[color]
+
     move_patterns = {
         "P": pawn_movement,
         "N": knight_movement,
@@ -62,50 +91,73 @@ def get_move_patterns(piece_type, color):
     return move_patterns
 
 def get_capture_patterns(piece, color):
+    """
+    get capture patterns todo
+    """
+
     capture_patterns = []
 
     if piece == "P":
-       capture_patterns = {
-           "W": [[-1, 1], [1, 1]],
-           "B": [[-1, -1], [1, -1]]
-       }[color]
+        capture_patterns = {
+            "W": [[-1, 1], [1, 1]],
+            "B": [[-1, -1], [1, -1]]
+        }[color]
     else:
         capture_patterns = get_move_patterns(piece, color)
 
     return capture_patterns
 
-def is_inbounds(i, j):
-    return 0 <= i <= 7 and 0 <= j <= 7
+def is_inbounds(indices):
+    """
+    is_indbound todo
+    """
+
+    row, column = indices
+    return 0 <= row <= 7 and 0 <= column <= 7
+
+def fetch_chess_piece(indices, chess_board):
+    """
+    fetch_chess_piece todo
+    """
+
+    col, row = indices
+    return chess_board[row][col]
 
 def recurse_check(original_move, check_move, pat, chess_board, check_pieces):
-    i, j = original_move
-    piece, color = chess_board[j][i]
-    in_check = False
-    y, z = check_move
+    """
+    recurse_check todo
+    """
 
-    if is_inbounds(y, z):
-        if chess_board[z][y]:
-            new_piece, new_color = chess_board[z][y]
+    color = fetch_chess_piece(original_move, chess_board)[1]
+    in_check = False
+
+    if is_inbounds(check_move):
+        new_piece_square = fetch_chess_piece(check_move, chess_board)
+        if all(new_piece_square):
+            new_piece, new_color = new_piece_square
             in_check = new_color != color and new_piece in check_pieces
         else:
             if 'Q' in check_pieces:
-                return recurse_check(original_move, [y+pat[0], z+pat[1]], pat, chess_board, check_pieces)
+                new_check_move = add_pattern_to_move(check_move, pat)
+                return recurse_check(original_move, new_check_move, pat, chess_board, check_pieces)
 
     return in_check
 
 
 def validate_check(original_move, potential_move, chess_board):
-    i, j = original_move
-    k, l = potential_move
-    piece, color = chess_board[j][i]
+    """
+    validate_check todo
+    """
+
+    piece, color = fetch_chess_piece(original_move, chess_board)
     in_check = False
 
     for piece in ['P', 'B', 'R', 'N']:
         check_moves = get_capture_patterns(piece, color)
         check_pieces = [piece, 'Q'] if piece in ['B', 'R'] else [piece]
 
-        for x, pat in enumerate(check_moves):
-            check_move = [k+pat[0], l+pat[1]]
+        for pat in check_moves:
+            check_move = add_pattern_to_move(potential_move, pat)
 
             if original_move != check_move:
                 in_check = recurse_check(original_move, check_move, pat, chess_board, check_pieces)
@@ -116,12 +168,14 @@ def validate_check(original_move, potential_move, chess_board):
     return False
 
 def validate_move(pattern, chess_board, potential_move, moves, original_move):
-    i, j = original_move
-    piece, color = chess_board[j][i]
-    k, l = potential_move
-    inbounds = is_inbounds(k, l)
+    """
+    validate_move todo
+    """
 
-    occupying_color = inbounds and chess_board[l][k] and chess_board[l][k][1]
+    piece, color = fetch_chess_piece(original_move, chess_board)
+    inbounds = is_inbounds(potential_move)
+
+    occupying_color = inbounds and fetch_chess_piece(potential_move, chess_board)[1]
     valid_move = inbounds and color != occupying_color
 
     if valid_move and piece == 'K':
@@ -132,22 +186,33 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
         moves.append(potential_move)
 
     if piece in ['Q', 'B', 'R'] and inbounds and not occupying_color:
-        p0, p1 = pattern
-        return validate_move(pattern, chess_board, [k+p0, l+p1], moves, original_move)
-    else:
-        return moves
+        new_move = add_pattern_to_move(potential_move, pattern)
+        return validate_move(pattern, chess_board, new_move, moves, original_move)
 
-def get_moves(piece_type, position, values, chess_board):
+    return moves
+
+def add_pattern_to_move(indices, pattern):
+    """
+    add_pattern_to_move todo
+    """
+
+    row, col = indices
+    row_pat, col_pat = pattern
+
+    return [row + row_pat, col + col_pat]
+
+def get_moves(position, values, chess_board):
+    """
+    get_moves todo
+    """
+
     original_move = [values[i] for i in position]
-    i, j = original_move
-    piece, color = chess_board[j][i]
+    piece, color = fetch_chess_piece(original_move, chess_board)
     move_patterns = get_move_patterns(piece, color)
     moves = []
-    
 
     for pattern in move_patterns:
-        p0, p1 = pattern
-        potential_move = [i+p0, j+p1]
+        potential_move = add_pattern_to_move(original_move, pattern)
         legal_moves = validate_move(pattern, chess_board, potential_move, moves, original_move)
 
     return legal_moves
