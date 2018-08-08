@@ -45,12 +45,13 @@ def output_moves(legal_moves, piece, value_map):
     message = "LEGAL MOVES FOR {0}: {1}".format(piece, values)
     print message
 
-def get_move_patterns(piece_type):
+def get_move_patterns(piece_type, color):
     diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
     xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]]
     knight_movement = [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]]
+    pawn_movement = [[0, 1]] if color is 'W' else [[0, -1]]
     move_patterns = {
-        "P": [[0, 1]],
+        "P": pawn_movement,
         "N": knight_movement,
         "B": diagonal_movement,
         "R": xy_movement,
@@ -69,7 +70,7 @@ def get_capture_patterns(piece, color):
            "B": [[-1, -1], [1, -1]]
        }[color]
     else:
-        capture_patterns = get_move_patterns(piece)
+        capture_patterns = get_move_patterns(piece, color)
 
     return capture_patterns
 
@@ -138,9 +139,10 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
 
 def get_moves(piece_type, position, values, chess_board):
     original_move = [values[i] for i in position]
-    move_patterns = get_move_patterns(piece_type)
-    moves = []
     i, j = original_move
+    piece, color = chess_board[j][i]
+    move_patterns = get_move_patterns(piece, color)
+    moves = []
     
 
     for pattern in move_patterns:
