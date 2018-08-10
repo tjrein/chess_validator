@@ -9,12 +9,12 @@ def main():
 
     #white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
     #black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Qa6']
-    white = ["Kg1"]
-    black = ["Bf4", "Qc6", "Pg3"]
+    white = ["Kg1", "Pg3"]
+    black = ["Bf4", "Qc6", "Ph4"]
 
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
     value_map = generate_value_map()
-    piece = 'Kg1'
+    piece = 'Qc6'
     map_initial_values(white, black, value_map['chr_to_ind'], chess_board)
     legal_moves = get_moves(piece[1:], value_map['chr_to_ind'], chess_board)
     output_moves(legal_moves, piece, value_map)
