@@ -10,7 +10,7 @@ def main():
     #white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
     #black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Qa6']
     white = ["Kg1"]
-    black = ["Bf4", "Qc6"]
+    black = ["Bf4", "Qc6", "Pg3"]
 
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
     value_map = generate_value_map()
@@ -75,8 +75,8 @@ def get_move_patterns(piece_type, color):
     knight_movement = [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]]
 
     pawn_movement = {
-        "W": [[0, 1]],
-        "B": [[0, -1]]
+        "W": [[0, 1], [-1, 1], [1, 1]],
+        "B": [[0, -1], [-1, -1], [1, -1]]
     }[color]
 
     move_patterns = {
@@ -89,23 +89,6 @@ def get_move_patterns(piece_type, color):
     }[piece_type]
 
     return move_patterns
-
-def get_capture_patterns(piece, color):
-    """
-    get capture patterns todo
-    """
-
-    capture_patterns = []
-
-    if piece == "P":
-        capture_patterns = {
-            "W": [[-1, 1], [1, 1]],
-            "B": [[-1, -1], [1, -1]]
-        }[color]
-    else:
-        capture_patterns = get_move_patterns(piece, color)
-
-    return capture_patterns
 
 def is_inbounds(indices):
     """
@@ -153,7 +136,11 @@ def validate_check(original_move, potential_move, chess_board):
     in_check = False
 
     for piece in ['P', 'B', 'R', 'N']:
-        check_moves = get_capture_patterns(piece, color)
+        check_moves = get_move_patterns(piece, color)
+
+        if piece == 'P':
+            check_moves = check_moves[1:]
+
         check_pieces = [piece, 'Q'] if piece in ['B', 'R'] else [piece]
 
         for pat in check_moves:
@@ -176,7 +163,15 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
     inbounds = is_inbounds(potential_move)
 
     occupying_color = inbounds and fetch_chess_piece(potential_move, chess_board)[1]
-    valid_move = inbounds and color != occupying_color
+
+    #TODO: REFACTOR
+    if piece == 'P':
+        if pattern in [[0,1], [0,-1]]:
+            valid_move = inbounds and not occupying_color
+        else:
+            valid_move = inbounds and occupying_color and color != occupying_color
+    else:
+        valid_move = inbounds and color != occupying_color
 
     if valid_move and piece == 'K':
         in_check = validate_check(original_move, potential_move, chess_board)
