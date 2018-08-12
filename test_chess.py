@@ -30,14 +30,15 @@ class TestChess(unittest.TestCase):
 
         self.assertItemsEqual(expected, actual) 
 
+    def test_king_movement(self):
+        self.run_movement_test("g1", ["h2"])
+
     def test_in_check(self):
         original_move = self.translate_position("g1")
         potential_move = self.translate_position("g2")
 
         self.assertTrue(chess.validate_check(original_move, potential_move, self.chess_board))
 
-    def test_king_movement(self):
-        self.run_movement_test("g1", ["h2"])
 
     def test_queen_movement(self):
         diagonal =  ["d5", "e4", "f3", "g2", "h1", "b5", "a4", "d7"]
@@ -50,17 +51,18 @@ class TestChess(unittest.TestCase):
     def test_rook_movement(self):
         self.run_movement_test("a5", ["a1", "a2", "a3", "a4", "a6", "b5", "c5", "d5", "e5", "f5", "g5"])
 
+    def test_knight_movement(self):
+        self.run_movement_test("e8", ["d6", "f6", "g7"])
+
+    def test_bishop_movement(self):
+        self.run_movement_test("f4", ["g3", "g5", "e3", "d2", "c1", "e5", "d6"])
+
     def test_black_pawn_movement(self):
         self.run_movement_test("b7", ["b6"])
 
     def test_white_pawn_movement(self):
         self.run_movement_test("g3", ["g4", "f4"])
 
-    def test_knight_movement(self):
-        self.run_movement_test("e8", ["d6", "f6", "g7"])
-
-    def test_bishop_movement(self):
-        self.run_movement_test("f4", ["g3", "g5", "e3", "d2", "c1", "e5", "d6"])
 
 if __name__ == "__main__":
     unittest.main()
