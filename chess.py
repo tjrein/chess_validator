@@ -2,19 +2,61 @@
 This module does so and so
 """
 
+def validate_input(prompt):
+    """
+    validate_input todo
+    """
+
+    valid_pieces = ['K', 'Q', 'R', 'B', 'N', 'P']
+    valid_rows = ['1', '2', '3', '4', '5', '6', '7', '8']
+    valid_cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    not_valid = True
+
+    while not_valid:
+        input_string = raw_input(prompt) 
+        values = [value[0:1].upper() + value[1:].lower() for value in input_string.split() ]
+
+        try:
+            for value in values:
+                valid_piece = value[0:1] in valid_pieces
+                valid_col = value[1:2] in valid_cols
+                valid_row = value[2:] in valid_rows
+
+                if not valid_piece or not valid_row or not valid_col:
+                    err_msg = "\n{0} is not a valid input. Please try again.\n".format(value)
+                    raise ValueError(err_msg)
+
+            not_valid = False
+
+        except ValueError as e: 
+            print e
+
+    return values
+
 def main():
     """
     Main function todo docstring
     """
 
-    #white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
-    #black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Qa6']
-    white = ["Kg1", "Pg3"]
-    black = ["Bf4", "Qc6", "Ph4"]
-
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
     value_map = generate_value_map()
-    piece = 'Qc6'
+    cache = []
+
+    print "\nEnter "
+ 
+    white = validate_input("WHITE: ")
+    black = validate_input("BLACK: ")
+    piece = validate_input("PIECE TO MOVE: ")[0]
+
+
+    #white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
+    #black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Qa6']
+
+    #white = ["Kg1", "Pg3"]
+    #black = ["Bf4", "Qc6", "Ph4"]
+
+    #piece = "Kg1"
+
     map_initial_values(white, black, value_map['chr_to_ind'], chess_board)
     legal_moves = get_moves(piece[1:], value_map['chr_to_ind'], chess_board)
     output_moves(legal_moves, piece, value_map)
