@@ -13,8 +13,8 @@ def validate_input(prompt):
     not_valid = True
 
     while not_valid:
-        input_string = raw_input(prompt) 
-        values = [value[0:1].upper() + value[1:].lower() for value in input_string.split() ]
+        input_string = raw_input(prompt)
+        values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
 
         try:
             for value in values:
@@ -28,8 +28,8 @@ def validate_input(prompt):
 
             not_valid = False
 
-        except ValueError as e: 
-            print e
+        except ValueError as err:
+            print err
 
     return values
 
@@ -40,10 +40,7 @@ def main():
 
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
     value_map = generate_value_map()
-    cache = []
 
-    print "\nEnter "
- 
     white = validate_input("WHITE: ")
     black = validate_input("BLACK: ")
     piece = validate_input("PIECE TO MOVE: ")[0]
@@ -208,7 +205,7 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
 
     #TODO: REFACTOR
     if piece == 'P':
-        if pattern in [[0,1], [0,-1]]:
+        if pattern in [[0, 1], [0, -1]]:
             valid_move = inbounds and not occupying_color
         else:
             valid_move = inbounds and occupying_color and color != occupying_color
