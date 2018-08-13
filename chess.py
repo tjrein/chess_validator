@@ -3,8 +3,7 @@ This module does so and so
 """
 
 def validate_input(prompt):
-    """
-    Validates a input from the user and splits the string input to an array of chess positions 
+    """Validates a input from the user and splits the string input to an array of chess positions
 
     Args:
        prompt (string): A message to display to the user to prompt for input
@@ -22,7 +21,7 @@ def validate_input(prompt):
     while not_valid:
         input_string = raw_input(prompt)
 
-        #sanitize input -- piece type upper, position lower. 
+        #sanitize input -- piece type upper, position lower.
         values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
 
         try:
@@ -45,12 +44,12 @@ def validate_input(prompt):
     return values
 
 def main():
-    """
-    Gets chessboard configuaration from user.
-    Calculates and outputs legal moves for a given chess piece
-    """
+    """Primary execution function."""
 
+    #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
+
+    #A dict of dicts that that maps indices to characters and vice versa
     value_map = generate_value_map()
 
     white = validate_input("WHITE: ")
@@ -72,11 +71,26 @@ def main():
 
 def map_initial_values(white, black, values, chess_board):
     """
-    map_initial_values docstring Todo
+    Places pieces onto the chessboard based on the user's board configuration.
+
+    Args:
+        white: An array of white pieces
+        black: An array of black pieces
+        values: A dict that maps characters to indices
+        chess_board: An 8x8 multidemensional array of tuples
+
+    Ex:
+        If black has the piece Rf1, the value at chess_board[0][5] will equal ('R', 'B')
+
+        A chess piece's horizontal and vertical position is mapped to array indices
+        Using this mapping, a piece's type and color are stored in a tuple at those indices
+        On the chessboard, letters correspond to columns while the numbers correspond to rows
+        In a multidimensional array we need the row first (number) and the column second (letter).
     """
 
     for ind, color in enumerate([black, white]):
         char = {0: 'B', 1: 'W'}[ind]
+
         for played_piece in color:
             piece_type = played_piece[0:1]
             position = played_piece[1:]
@@ -84,8 +98,18 @@ def map_initial_values(white, black, values, chess_board):
             chess_board[row][col] = (piece_type, char)
 
 def generate_value_map():
-    """
-    generate_value_map todo
+    """Generates a value map from characters to indices and vice versa
+
+    Returns:
+        A dict of dicts of value mappings
+
+    Ex:
+        chr_to_ind = { 'a': 0, 'b': 1, '1': 0, '2': 1 ... }
+        ind_to_num = { 0: '1', 1: '2' ... }
+        ind_to_letter = { 0: 'a', 1: 'b' ...}
+
+        Seperate dicts are needed for mapping indices back to characters otherwise keys would repeat
+
     """
 
     value_map = {
