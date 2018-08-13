@@ -130,9 +130,14 @@ def generate_value_map():
     return value_map
 
 def output_moves(legal_moves, piece, value_map):
+    """Prints legal moves for a given piece
+
+    Args:
+        legal_moves: an array of legal moves
+        piece: a string, the selected piece
+        value_map: A dict of dicts of value mappings
     """
-    output_moves todo
-    """
+
 
     numbers = value_map['ind_to_num']
     letters = value_map['ind_to_letter']
@@ -168,25 +173,34 @@ def get_move_patterns(piece_type, color):
     return move_patterns
 
 def is_inbounds(indices):
-    """
-    is_indbound todo
+    """A helper function to determine if a move would be inbounds
+
+    Args:
+        indices: an array of indices for a potential move
+
+    Returns:
+        A boolean
     """
 
     row, column = indices
     return 0 <= row <= 7 and 0 <= column <= 7
 
 def fetch_chess_piece(indices, chess_board):
-    """
-    fetch_chess_piece todo
+    """A helper function to access pieces on the chess_board using indices
+
+    Args:
+        indices: an array of indices
+        chess_board: An 8x8 multidemensional array of tuples
+
+    Returns:
+        The the tuple found at the corresponding indices
     """
 
     col, row = indices
     return chess_board[row][col]
 
 def recurse_check(original_move, check_move, pat, chess_board, check_pieces):
-    """
-    recurse_check todo
-    """
+    """A recursive function"""
 
     color = fetch_chess_piece(original_move, chess_board)[1]
     in_check = False
@@ -197,7 +211,8 @@ def recurse_check(original_move, check_move, pat, chess_board, check_pieces):
             new_piece, new_color = new_piece_square
             in_check = new_color != color and new_piece in check_pieces
         else:
-            if 'Q' in check_pieces: #For indeterminate pieces, check next square according to patterns 
+            #For indeterminate pieces, check next square according to pattern
+            if 'Q' in check_pieces:
                 new_check_move = add_pattern_to_move(check_move, pat)
                 return recurse_check(original_move, new_check_move, pat, chess_board, check_pieces)
 
@@ -233,8 +248,8 @@ def determine_check(original_move, potential_move, chess_board):
 
             if original_move != check_move: # don't evaluate the King's starting position
                 in_check = recurse_check(original_move, check_move, pat, chess_board, check_pieces)
-            
-            #Exit if check is found 
+
+            #exit if check is found
             if in_check:
                 return in_check
 
@@ -279,7 +294,7 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
         moves.append(potential_move)
 
     #For indeterminate pieces, recursively find all moves until another piece is encountered
-    if piece in ['Q', 'B', 'R'] and not occupying_color: 
+    if piece in ['Q', 'B', 'R'] and not occupying_color:
         new_move = add_pattern_to_move(potential_move, pattern)
         return validate_move(pattern, chess_board, new_move, moves, original_move)
 
