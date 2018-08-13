@@ -201,16 +201,19 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
     piece, color = fetch_chess_piece(original_move, chess_board)
     inbounds = is_inbounds(potential_move)
 
-    occupying_color = inbounds and fetch_chess_piece(potential_move, chess_board)[1]
+    if not inbounds:
+        return moves
 
-    #TODO: REFACTOR
+    occupying_color = fetch_chess_piece(potential_move, chess_board)[1]
+    valid_condition = color != occupying_color
+
     if piece == 'P':
         if pattern in [[0, 1], [0, -1]]:
-            valid_move = inbounds and not occupying_color
+            valid_condition = not occupying_color
         else:
-            valid_move = inbounds and occupying_color and color != occupying_color
-    else:
-        valid_move = inbounds and color != occupying_color
+            valid_condition = occupying_color and color != occupying_color
+
+    valid_move = valid_condition
 
     if valid_move and piece == 'K':
         in_check = validate_check(original_move, potential_move, chess_board)
