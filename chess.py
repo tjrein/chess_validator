@@ -56,15 +56,6 @@ def main():
     black = validate_input("BLACK: ")
     piece = validate_input("PIECE TO MOVE: ")[0]
 
-
-    #white = ['Rf1', 'Kg1', 'Bf2', 'Ph2', 'Pg3', 'Bf5']
-    #black = ['Kb8', 'Qe8', 'Pa7', 'Pb7', 'Pc7', 'Qa6']
-
-    #white = ["Kg1", "Pg3"]
-    #black = ["Bf4", "Qc6", "Ph4"]
-
-    #piece = "Kg1"
-
     map_initial_values(white, black, value_map['chr_to_ind'], chess_board)
     legal_moves = get_moves(piece[1:], value_map['chr_to_ind'], chess_board)
     output_moves(legal_moves, piece, value_map)
@@ -85,7 +76,7 @@ def map_initial_values(white, black, values, chess_board):
         A chess piece's horizontal and vertical position is mapped to array indices
         Using this mapping, a piece's type and color are stored in a tuple at those indices
         On the chessboard, letters correspond to columns while the numbers correspond to rows
-        In a multidimensional array we need the row first (number) and the column second (letter).
+        In a 2d array we need the row first (number) and the column second (letter).
     """
 
     for ind, color in enumerate([black, white]):
@@ -107,11 +98,9 @@ def generate_value_map():
         chr_to_ind = { 'a': 0, 'b': 1, '1': 0, '2': 1 ... }
         ind_to_num = { 0: '1', 1: '2' ... }
         ind_to_letter = { 0: 'a', 1: 'b' ...}
-
-        Seperate dicts are needed for mapping indices back to characters otherwise keys would repeat
-
     """
 
+    #Seperate dicts are needed for mapping indices back to characters otherwise keys would repeat
     value_map = {
         'chr_to_ind': {},
         'ind_to_num': {},
@@ -138,7 +127,6 @@ def output_moves(legal_moves, piece, value_map):
         value_map: A dict of dicts of value mappings
     """
 
-
     numbers = value_map['ind_to_num']
     letters = value_map['ind_to_letter']
     values = " ".join(sorted([letters[move[0]] + numbers[move[1]] for move in legal_moves]))
@@ -146,8 +134,14 @@ def output_moves(legal_moves, piece, value_map):
     print message
 
 def get_move_patterns(piece_type, color):
-    """
-    get_move_patterns todo
+    """Accesses the movement patterns for a given piece
+
+    Args:
+        piece_type: A char representing a piece's type
+        color: A char representing the color of the piece, used for pawn
+
+    Returns:
+        A list of movement patterns for the given piece
     """
 
     diagonal_movement = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
@@ -155,11 +149,10 @@ def get_move_patterns(piece_type, color):
     knight_movement = [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]]
 
     #chessboard orientation is absolute, so white pawns move up, and black pawns move down
-    #The first index in pawn_movement is normal movement, the remaining indices are how it captures
     pawn_movement = {
         "W": [[0, 1], [-1, 1], [1, 1]],
         "B": [[0, -1], [-1, -1], [1, -1]]
-    }[color]
+    }[color] #use color to access relevant pawn patterns
 
     move_patterns = {
         "P": pawn_movement,
@@ -168,7 +161,7 @@ def get_move_patterns(piece_type, color):
         "R": xy_movement,
         "K": diagonal_movement + xy_movement,
         "Q": diagonal_movement + xy_movement,
-    }[piece_type]
+    }[piece_type] #use piece_type to access relevant patterns
 
     return move_patterns
 
@@ -176,17 +169,17 @@ def is_inbounds(indices):
     """A helper function to determine if a move would be inbounds
 
     Args:
-        indices: an array of indices for a potential move
+        indices: an array of indices of a move
 
     Returns:
-        A boolean
+        A bool indicating if a move would be in bounds
     """
 
     row, column = indices
     return 0 <= row <= 7 and 0 <= column <= 7
 
 def fetch_chess_piece(indices, chess_board):
-    """A helper function to access pieces on the chess_board using indices
+    """A helper function to access pieces on the chess_board
 
     Args:
         indices: an array of indices
@@ -228,7 +221,7 @@ def determine_check(original_move, potential_move, chess_board):
         chess_board: An 8x8 multidemensional array of tuples
 
     Returns:
-        Boolean indicating if in check
+        A bool indicating if in check
     """
 
     piece, color = fetch_chess_piece(original_move, chess_board)
@@ -259,7 +252,7 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
     """Recursive function that finds all legal moves according to a movement pattern
 
     Args:
-        pattern: An array consisting of how many squares to move vertically and horizontally
+        pattern: An list consisting of how many squares to move vertically and horizontally
         chess_board: An 8x8 multidemensional array of tuples
         potential_move: An array of indices that correspond to a desired move
         moves: An array of all legal moves
@@ -301,8 +294,14 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
     return moves
 
 def add_pattern_to_move(indices, pattern):
-    """
-    add_pattern_to_move todo
+    """Helper function to get indices of a new move after applying a movement pattern
+
+    Args:
+       indices: A list of indices of a  move
+       pattern: An list consisting of how many squares to move vertically and horizontally
+
+    Returns:
+        An list of indices representing a new move on the chess board
     """
 
     row, col = indices
