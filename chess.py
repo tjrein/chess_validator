@@ -4,20 +4,31 @@ This module does so and so
 
 def validate_input(prompt):
     """
-    validate_input todo
+    Validates a input from the user and splits the string input to an array of chess positions 
+
+    Args:
+       prompt (string): A message to display to the user to prompt for input
+
+    Returns:
+        An array of chess pieces with their positions, ex. ['Kg1', 'Rf2']
     """
+
+    not_valid = True
 
     valid_pieces = ['K', 'Q', 'R', 'B', 'N', 'P']
     valid_rows = ['1', '2', '3', '4', '5', '6', '7', '8']
     valid_cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-    not_valid = True
 
     while not_valid:
         input_string = raw_input(prompt)
+
+        #sanitize input -- piece type upper, position lower. 
         values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
 
         try:
             for value in values:
+
+                #isolate relevant portions of the string and check they are valid
                 valid_piece = value[0:1] in valid_pieces
                 valid_col = value[1:2] in valid_cols
                 valid_row = value[2:] in valid_rows
@@ -26,7 +37,7 @@ def validate_input(prompt):
                     err_msg = "\n{0} is not a valid input. Please try again.\n".format(value)
                     raise ValueError(err_msg)
 
-            not_valid = False
+            not_valid = False #if no errors are encountered, end outer while loop
 
         except ValueError as err:
             print err
@@ -35,7 +46,8 @@ def validate_input(prompt):
 
 def main():
     """
-    Main function todo docstring
+    Gets chessboard configuaration from user.
+    Calculates and outputs legal moves for a given chess piece
     """
 
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
