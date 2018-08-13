@@ -145,10 +145,12 @@ def get_move_patterns(piece_type, color):
     get_move_patterns todo
     """
 
-    diagonal_movement = [[1, 1], [1, -1], [-1, +1], [-1, -1]]
+    diagonal_movement = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
     xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]]
     knight_movement = [[-2, 1], [-1, 2], [1, 2], [2, 1], [-2, -1], [-1, -2], [2, -1], [1, -2]]
 
+    #chessboard orientation is absolute, so white pawns move up, and black pawns move down
+    #The first index in pawn_movement is normal movement, the remaining indices are how it captures
     pawn_movement = {
         "W": [[0, 1], [-1, 1], [1, 1]],
         "B": [[0, -1], [-1, -1], [1, -1]]
@@ -191,20 +193,27 @@ def recurse_check(original_move, check_move, pat, chess_board, check_pieces):
 
     if is_inbounds(check_move):
         new_piece_square = fetch_chess_piece(check_move, chess_board)
-        if all(new_piece_square):
+        if all(new_piece_square): #Empty squares i.e. (0, 0) will be false
             new_piece, new_color = new_piece_square
             in_check = new_color != color and new_piece in check_pieces
         else:
-            if 'Q' in check_pieces:
+            if 'Q' in check_pieces: #For indeterminate pieces, check next square according to patterns 
                 new_check_move = add_pattern_to_move(check_move, pat)
                 return recurse_check(original_move, new_check_move, pat, chess_board, check_pieces)
 
     return in_check
 
 
-def validate_check(original_move, potential_move, chess_board):
-    """
-    validate_check todo
+def determine_check(original_move, potential_move, chess_board):
+    """Determines if a King would be put in check for a potential move
+
+    Args:
+        original_move: An array of indices that correspond to the original location of the piece
+        potential_move: An array of indices that correspond to a desired move
+        chess_board: An 8x8 multidemensional array of tuples
+
+    Returns:
+        Boolean indicating if in check
     """
 
     piece, color = fetch_chess_piece(original_move, chess_board)
@@ -214,24 +223,35 @@ def validate_check(original_move, potential_move, chess_board):
         check_moves = get_move_patterns(piece, color)
 
         if piece == 'P':
-            check_moves = check_moves[1:]
+            check_moves = check_moves[1:] #pawn movement and capture patterns differ
 
+        #Q shares movement patterns with B and R
         check_pieces = [piece, 'Q'] if piece in ['B', 'R'] else [piece]
 
         for pat in check_moves:
             check_move = add_pattern_to_move(potential_move, pat)
 
-            if original_move != check_move:
+            if original_move != check_move: # don't evaluate the King's starting position
                 in_check = recurse_check(original_move, check_move, pat, chess_board, check_pieces)
-
+            
+            #Exit if check is found 
             if in_check:
                 return in_check
 
     return False
 
 def validate_move(pattern, chess_board, potential_move, moves, original_move):
-    """
-    validate_move todo
+    """Recursive function that finds all legal moves according to a movement pattern
+
+    Args:
+        pattern: An array consisting of how many squares to move vertically and horizontally
+        chess_board: An 8x8 multidemensional array of tuples
+        potential_move: An array of indices that correspond to a desired move
+        moves: An array of all legal moves
+        original_move: An array of indices that correspond to the original location of the piece
+
+    Returns:
+       An array of all legal moves.
     """
 
     piece, color = fetch_chess_piece(original_move, chess_board)
@@ -243,8 +263,9 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
     occupying_color = fetch_chess_piece(potential_move, chess_board)[1]
     valid_condition = color != occupying_color
 
+    #pawn can only capture diagonally
     if piece == 'P':
-        if pattern in [[0, 1], [0, -1]]:
+        if pattern in [[0, 1], [0, -1]]: #vertical movement:
             valid_condition = not occupying_color
         else:
             valid_condition = occupying_color and color != occupying_color
@@ -252,13 +273,13 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
     valid_move = valid_condition
 
     if valid_move and piece == 'K':
-        in_check = validate_check(original_move, potential_move, chess_board)
-        valid_move = not in_check
+        valid_move = not determine_check(original_move, potential_move, chess_board)
 
     if valid_move:
         moves.append(potential_move)
 
-    if piece in ['Q', 'B', 'R'] and inbounds and not occupying_color:
+    #For indeterminate pieces, recursively find all moves until another piece is encountered
+    if piece in ['Q', 'B', 'R'] and not occupying_color: 
         new_move = add_pattern_to_move(potential_move, pattern)
         return validate_move(pattern, chess_board, new_move, moves, original_move)
 

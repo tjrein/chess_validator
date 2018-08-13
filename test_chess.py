@@ -37,7 +37,7 @@ class TestChess(unittest.TestCase):
         original_move = self.translate_position("g1")
         potential_move = self.translate_position("g2")
 
-        self.assertTrue(chess.validate_check(original_move, potential_move, self.chess_board))
+        self.assertTrue(chess.determine_check(original_move, potential_move, self.chess_board))
 
 
     def test_queen_movement(self):
