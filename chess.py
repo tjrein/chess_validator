@@ -11,9 +11,11 @@ def main():
     Outputs legal moves for a given piece
     """
 
-    white = validate_input("WHITE: ")
-    black = validate_input("BLACK: ")
-    piece = validate_input("PIECE TO MOVE: ")[0]
+    cache = []
+
+    white = validate_input("WHITE: ", cache)
+    black = validate_input("BLACK: ", cache)
+    piece = validate_input("PIECE TO MOVE: ", cache)[0]
 
     #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
@@ -27,7 +29,7 @@ def main():
     legal_moves = get_moves(origin, chess_board)
     output_moves(legal_moves, piece, value_map)
 
-def validate_input(prompt):
+def validate_input(prompt, cache):
     """Validates a input from the user and splits the string input to an array of chess positions
 
     Args:
@@ -45,23 +47,40 @@ def validate_input(prompt):
 
     while not_valid:
         input_string = raw_input(prompt)
+        potential_pieces = []
 
         #sanitize input -- piece type upper, position lower.
         values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
-
         try:
             for value in values:
 
                 #isolate relevant portions of the string and check they are valid
-                valid_piece = value[0:1] in valid_pieces
-                valid_col = value[1:2] in valid_cols
-                valid_row = value[2:] in valid_rows
+                piece = value[0:1]
+                letter = value[1:2]
+                number = value[2:]
 
-                if not valid_piece or not valid_row or not valid_col:
+                valid_piece = piece in valid_pieces
+                valid_col = letter in valid_cols
+                valid_row = number in valid_rows
+
+                valid = valid_piece and valid_row and valid_col
+
+                if not valid:
                     err_msg = "\n{0} is not a valid input. Please try again.\n".format(value)
                     raise ValueError(err_msg)
 
+                if value[1:] in potential_pieces:
+                    err_msg = "\nCannot place pieces at the same location \n".format(value[1:])
+                    raise ValueError(err_msg)
+
+                if value[1:] in cache:
+                    err_msg = "\nA piece was already placed at {0} \n".format(value[1:])
+                    raise ValueError(err_msg)
+
+                potential_pieces.append(value[1:])
+
             not_valid = False #if no errors are encountered, end outer while loop
+            cache += potential_pieces
 
         except ValueError as err:
             print err
