@@ -200,26 +200,24 @@ def validate_move(pattern, chess_board, potential_move, moves, origin):
     if not inbounds:
         return moves
 
-    occupying_color = fetch_chess_piece(potential_move, chess_board)[1]
-    valid_condition = color != occupying_color
+    potential_color = fetch_chess_piece(potential_move, chess_board)[1]
+    valid_move = color != potential_color #either empty or capturable
 
     #pawn can only capture diagonally
     if piece == 'P':
         if pattern in [[0, 1], [0, -1]]: #vertical movement:
-            valid_condition = not occupying_color
+            valid_move = not potential_color
         else:
-            valid_condition = occupying_color and color != occupying_color
+            valid_move = valid_move and potential_color #can only capture if opposing piece
 
-    valid_move = valid_condition
-
-    if valid_move and piece == 'K':
+    if piece == 'K' and valid_move:
         valid_move = not determine_check(origin, potential_move, chess_board)
 
     if valid_move:
         moves.append(potential_move)
 
     #For indeterminate pieces, recursively find all moves until another piece is encountered
-    if piece in ['Q', 'B', 'R'] and not occupying_color:
+    if piece in ['Q', 'B', 'R'] and not potential_color:
         new_move = add_pattern_to_move(potential_move, pattern)
         return validate_move(pattern, chess_board, new_move, moves, origin)
 
