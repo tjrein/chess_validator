@@ -25,7 +25,8 @@ class TestChess(unittest.TestCase):
         self.assertEqual(self.chess_board[5][2], ('Q', 'B'))
 
     def run_movement_test(self, position, legal_moves):
-        expected = chess.get_moves(position, self.value_map["chr_to_ind"], self.chess_board)
+        original_move = [self.value_map['chr_to_ind'][i] for i in position]
+        expected = chess.get_moves(original_move, self.chess_board)
         actual = [self.translate_position(move) for move in legal_moves]
 
         self.assertItemsEqual(expected, actual) 
