@@ -11,20 +11,20 @@ def main():
     Outputs legal moves for a given piece
     """
 
-    #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
-    chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
-
     white = validate_input("WHITE: ")
     black = validate_input("BLACK: ")
     piece = validate_input("PIECE TO MOVE: ")[0]
 
+    #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
+    chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
+
     #A dict of dicts that that maps indices to characters and vice versa
     value_map = generate_value_map()
-    values = value_map['chr_to_ind']
-    map_initial_values(white, black, values, chess_board)
+    char_map = value_map['chr_to_ind']
+    map_initial_values(white, black, char_map, chess_board)
 
-    original_move = [values[i] for i in piece[1:]]
-    legal_moves = get_moves(original_move, chess_board)
+    origin = [char_map[i] for i in piece[1:]]
+    legal_moves = get_moves(origin, chess_board)
     output_moves(legal_moves, piece, value_map)
 
 def validate_input(prompt):
@@ -112,24 +112,24 @@ def map_initial_values(white, black, values, chess_board):
             col, row = [values[j] for j in position]
             chess_board[row][col] = (piece_type, char)
 
-def get_moves(original_move, chess_board):
+def get_moves(origin, chess_board):
     """Gets all the legal moves for a piece
 
     Args:
-        original_move: An array of indices that correspond to the original location of the piece
+        origin: An array of indices that correspond to the original location of the piece
         chess_board: An 8x8 multidemensional array of tuples
 
     Returns:
         A list of lists containing indices that represent a piece's legal moves
     """
 
-    piece, color = fetch_chess_piece(original_move, chess_board)
+    piece, color = fetch_chess_piece(origin, chess_board)
     move_patterns = get_move_patterns(piece, color)
     moves = []
 
     for pattern in move_patterns:
-        potential_move = add_pattern_to_move(original_move, pattern)
-        legal_moves = validate_move(pattern, chess_board, potential_move, moves, original_move)
+        potential_move = add_pattern_to_move(origin, pattern)
+        legal_moves = validate_move(pattern, chess_board, potential_move, moves, origin)
 
     return legal_moves
 
@@ -180,7 +180,7 @@ def get_move_patterns(piece_type, color):
 
     return move_patterns
 
-def validate_move(pattern, chess_board, potential_move, moves, original_move):
+def validate_move(pattern, chess_board, potential_move, moves, origin):
     """Recursive function that finds all legal moves according to a movement pattern
 
     Args:
@@ -188,13 +188,13 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
         chess_board: An 8x8 multidemensional array of tuples
         potential_move: An array of indices that correspond to a desired move
         moves: An array of all legal moves
-        original_move: An array of indices that correspond to the original location of the piece
+        origin: An array of indices that correspond to the original location of the piece
 
     Returns:
        An array of all legal moves.
     """
 
-    piece, color = fetch_chess_piece(original_move, chess_board)
+    piece, color = fetch_chess_piece(origin, chess_board)
     inbounds = is_inbounds(potential_move)
 
     if not inbounds:
@@ -213,7 +213,7 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
     valid_move = valid_condition
 
     if valid_move and piece == 'K':
-        valid_move = not determine_check(original_move, potential_move, chess_board)
+        valid_move = not determine_check(origin, potential_move, chess_board)
 
     if valid_move:
         moves.append(potential_move)
@@ -221,15 +221,15 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
     #For indeterminate pieces, recursively find all moves until another piece is encountered
     if piece in ['Q', 'B', 'R'] and not occupying_color:
         new_move = add_pattern_to_move(potential_move, pattern)
-        return validate_move(pattern, chess_board, new_move, moves, original_move)
+        return validate_move(pattern, chess_board, new_move, moves, origin)
 
     return moves
 
-def determine_check(original_move, potential_move, chess_board):
+def determine_check(origin, potential_move, chess_board):
     """Determines if a King would be put in check for a potential move
 
     Args:
-        original_move: An array of indices that correspond to the original location of the piece
+        origin: An array of indices that correspond to the original location of the piece
         potential_move: An array of indices that correspond to a desired move
         chess_board: An 8x8 multidemensional array of tuples
 
@@ -237,7 +237,7 @@ def determine_check(original_move, potential_move, chess_board):
        A bool, whether the King would be in check
     """
 
-    piece, color = fetch_chess_piece(original_move, chess_board)
+    piece, color = fetch_chess_piece(origin, chess_board)
     in_check = False
 
     for piece in ['P', 'B', 'R', 'N']:
@@ -252,7 +252,7 @@ def determine_check(original_move, potential_move, chess_board):
         for pattern in check_moves:
             check_move = add_pattern_to_move(potential_move, pattern)
 
-            if original_move != check_move: # don't evaluate the King's starting position
+            if origin != check_move: # don't evaluate the King's starting position
                 in_check = recurse_check(color, check_move, pattern, chess_board, check_pieces)
 
             #exit if check is found
