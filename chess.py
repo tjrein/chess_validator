@@ -309,7 +309,7 @@ def fetch_chess_piece(indices, chess_board):
         chess_board: An 8x8 2d list of tuples
 
     Returns:
-        The the tuple found at the corresponding indices
+        The tuple found at the corresponding indices
     """
 
     col, row = indices
