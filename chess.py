@@ -34,7 +34,7 @@ def validate_input(prompt):
        prompt (string): A message to display to the user to prompt for input
 
     Returns:
-        An array of chess pieces with their positions, ex. ['Kg1', 'Rf2']
+        A list of chess pieces with their positions, ex. ['Kg1', 'Rf2']
     """
 
     not_valid = True
@@ -97,10 +97,10 @@ def map_initial_values(white, black, values, chess_board):
     """Places pieces onto the chessboard based on the user's board configuration.
 
     Args:
-        white: An array of white pieces
-        black: An array of black pieces
+        white: A list of white pieces
+        black: A list of black pieces
         values: A dict that maps characters to indices
-        chess_board: An 8x8 multidemensional array of tuples
+        chess_board: An 8x8 2d list of tuples
     """
 
     for ind, color in enumerate([black, white]):
@@ -116,8 +116,8 @@ def get_moves(origin, chess_board):
     """Gets all the legal moves for a piece
 
     Args:
-        origin: An array of indices that correspond to the original location of the piece
-        chess_board: An 8x8 multidemensional array of tuples
+        origin: A list of indices that correspond to the original location of the piece
+        chess_board: An 8x8 2d list of tuples
 
     Returns:
         A list of lists containing indices that represent a piece's legal moves
@@ -185,13 +185,13 @@ def validate_move(pattern, chess_board, potential_move, moves, origin):
 
     Args:
         pattern: An list consisting of how many squares to move vertically and horizontally
-        chess_board: An 8x8 multidemensional array of tuples
-        potential_move: An array of indices that correspond to a desired move
-        moves: An array of all legal moves
-        origin: An array of indices that correspond to the original location of the piece
+        chess_board: An 8x8 2d list of tuples
+        potential_move: A list of indices that correspond to a desired move
+        moves: A list of all legal moves
+        origin: A list of indices that correspond to the original location of the piece
 
     Returns:
-       An array of all legal moves.
+       A list of all legal moves.
     """
 
     piece, color = fetch_chess_piece(origin, chess_board)
@@ -227,9 +227,9 @@ def determine_check(origin, potential_move, chess_board):
     """Determines if a King would be put in check for a potential move
 
     Args:
-        origin: An array of indices that correspond to the original location of the piece
-        potential_move: An array of indices that correspond to a desired move
-        chess_board: An 8x8 multidemensional array of tuples
+        origin: A list of indices that correspond to the original location of the piece
+        potential_move: A list of indices that correspond to a desired move
+        chess_board: An 8x8 2d list of tuples
 
     Returns:
        A bool, whether the King would be in check
@@ -266,7 +266,7 @@ def recurse_check(color, check_move, pattern, chess_board, check_pieces):
         color: A string, the color of the King
         check_move: A list of indices representing a subsequent square on the board
         pattern: A list consisting of how many squares to move vertically and horizontally
-        chess_board: An 8x8 multidemensional array of tuples
+        chess_board: An 8x8 2d list of tuples
         check_pieces: A list of pieces that would yield check if encountered
 
     Returns:
@@ -306,7 +306,7 @@ def fetch_chess_piece(indices, chess_board):
 
     Args:
         indices: an array of indices
-        chess_board: An 8x8 multidemensional array of tuples
+        chess_board: An 8x8 2d list of tuples
 
     Returns:
         The the tuple found at the corresponding indices
