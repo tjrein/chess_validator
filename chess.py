@@ -222,8 +222,6 @@ def validate_move(pattern, chess_board, potential_move, moves, original_move):
 def determine_check(original_move, potential_move, chess_board):
     """Determines if a King would be put in check for a potential move
 
-    Primarily a wrapper function for recurse_check()
-
     Args:
         original_move: An array of indices that correspond to the original location of the piece
         potential_move: An array of indices that correspond to a desired move
@@ -258,7 +256,7 @@ def determine_check(original_move, potential_move, chess_board):
     return False
 
 def recurse_check(color, check_move, pattern, chess_board, check_pieces):
-    """Recursively evaluates squares for check for a King's potential move
+    """Recursive helper function for determine_check, evaluates squares for check
 
     Args:
         color: A string, the color of the King
@@ -285,7 +283,6 @@ def recurse_check(color, check_move, pattern, chess_board, check_pieces):
                 return recurse_check(color, new_check_move, pattern, chess_board, check_pieces)
 
     return in_check
-
 
 def is_inbounds(indices):
     """A helper function to determine if a move would be inbounds
