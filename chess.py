@@ -3,7 +3,13 @@ This module does so and so
 """
 
 def main():
-    """Primary execution function."""
+    """Primary execution function.
+
+    Gets valid input from user.
+    Constructs chess board.
+    Maps user input configuration to chess board.
+    Outputs legal moves for a given piece
+    """
 
     #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
