@@ -2,7 +2,6 @@ import unittest
 import chess
 
 class TestChess(unittest.TestCase):
-
     def setUp(self):
 
         self.white = ["Rf1", "Ng5", "Kg1", "Pf2", "Ph3", "Pg3"]

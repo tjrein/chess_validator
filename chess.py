@@ -11,11 +11,17 @@ def main():
     Outputs legal moves for a given piece
     """
 
+    VALID_CHARS = [
+        ['K', 'Q', 'R', 'B', 'N', 'P'],
+        ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+        ['1', '2', '3', '4', '5', '6', '7', '8'],
+    ]
+
     cache = []
 
-    white = validate_input("WHITE: ", cache)
-    black = validate_input("BLACK: ", cache)
-    piece = validate_input("PIECE TO MOVE: ", cache)[0]
+    white = validate_input("WHITE: ", cache, VALID_CHARS)
+    black = validate_input("BLACK: ", cache, VALID_CHARS)
+    piece = validate_input("PIECE TO MOVE: ", cache, VALID_CHARS)[0]
 
     #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
@@ -29,7 +35,7 @@ def main():
     legal_moves = get_moves(origin, chess_board)
     output_moves(legal_moves, piece, value_map)
 
-def validate_input(prompt, cache):
+def validate_input(prompt, cache, VALID_CHARS):
     """Validates a input from the user and splits the string input to an array of chess positions
 
     Args:
@@ -39,53 +45,40 @@ def validate_input(prompt, cache):
         A list of chess pieces with their positions, ex. ['Kg1', 'Rf2']
     """
 
-    not_valid = True
-
-    valid_pieces = ['K', 'Q', 'R', 'B', 'N', 'P']
-    valid_rows = ['1', '2', '3', '4', '5', '6', '7', '8']
-    valid_cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-
-    while not_valid:
+    while True:
         input_string = raw_input(prompt)
         potential_pieces = []
 
         #sanitize input -- piece type upper, position lower.
         values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
+
         try:
             for value in values:
+                position = value[1:]
 
-                #isolate relevant portions of the string and check they are valid
-                piece = value[0:1]
-                letter = value[1:2]
-                number = value[2:]
+                if len(value) != 3 or not validate_value(value, VALID_CHARS):
+                    raise ValueError("\n{0} is not a valid input.\n".format(value))
 
-                valid_piece = piece in valid_pieces
-                valid_col = letter in valid_cols
-                valid_row = number in valid_rows
+                if position in potential_pieces or position in cache:
+                    raise ValueError("\nThe position {0} cannot be repeated\n".format(position))
 
-                valid = valid_piece and valid_row and valid_col
-
-                if not valid:
-                    err_msg = "\n{0} is not a valid input. Please try again.\n".format(value)
-                    raise ValueError(err_msg)
-
-                if value[1:] in potential_pieces:
-                    err_msg = "\nCannot place pieces at the same location \n".format(value[1:])
-                    raise ValueError(err_msg)
-
-                if value[1:] in cache:
-                    err_msg = "\nA piece was already placed at {0} \n".format(value[1:])
-                    raise ValueError(err_msg)
-
-                potential_pieces.append(value[1:])
-
-            not_valid = False #if no errors are encountered, end outer while loop
-            cache += potential_pieces
+                #will only be appended if no errors are encountered
+                potential_pieces.append(position)
 
         except ValueError as err:
             print err
+        else:
+            cache += potential_pieces
+            break #end while loop
 
     return values
+
+def validate_value(value, VALID_CHARS):
+    for i, char in enumerate(list(value)):
+        if not char in VALID_CHARS[i]:
+            return False
+
+    return True
 
 def generate_value_map():
     """Generates a value map from characters to indices and vice versa
