@@ -19,15 +19,16 @@ def main():
 
     cache = []
 
-    white = validate_input("WHITE: ", cache, VALID_CHARS)
-    black = validate_input("BLACK: ", cache, VALID_CHARS)
-    piece = validate_input("PIECE TO MOVE: ", cache, VALID_CHARS)[0]
+    white = validate_input("WHITE: ", VALID_CHARS, cache)
+    black = validate_input("BLACK: ", VALID_CHARS, cache)
+    piece = validate_input("PIECE TO MOVE: ", VALID_CHARS, cache, evaluate_piece=True)[0]
 
     #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
     chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
 
     #A dict of dicts that that maps indices to characters and vice versa
     value_map = generate_value_map()
+
     char_map = value_map['chr_to_ind']
     map_initial_values(white, black, char_map, chess_board)
 
@@ -35,7 +36,7 @@ def main():
     legal_moves = get_moves(origin, chess_board)
     output_moves(legal_moves, piece, value_map)
 
-def validate_input(prompt, cache, VALID_CHARS):
+def validate_input(prompt, VALID_CHARS, cache, evaluate_piece=False):
     """Validates a input from the user and splits the string input to an array of chess positions
 
     Args:
@@ -47,28 +48,37 @@ def validate_input(prompt, cache, VALID_CHARS):
 
     while True:
         input_string = raw_input(prompt)
-        potential_pieces = []
+        played_positions = []
 
         #sanitize input -- piece type upper, position lower.
-        values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
+        values = [value[0:1].upper() + value[1:].lower() for value.split() in input_string.split()]
 
         try:
+            if len(values) < 1:
+                raise ValueError("\nInput cannot be blank\n")
+
+            if evaluate_piece and len(values) > 1:
+                raise ValueError("\nCannot evaluate moves for more than one piece\n")
+
             for value in values:
                 position = value[1:]
 
                 if len(value) != 3 or not validate_value(value, VALID_CHARS):
                     raise ValueError("\n{0} is not a valid input.\n".format(value))
 
-                if position in potential_pieces or position in cache:
-                    raise ValueError("\nThe position {0} cannot be repeated\n".format(position))
-
-                #will only be appended if no errors are encountered
-                potential_pieces.append(position)
+                if evaluate_piece:
+                    if position not in cache:
+                        raise ValueError("\n{0} is not on the board".format(value))
+                else:
+                    if position in cache or position in played_positions:
+                        raise ValueError("\n{0} is occupied\n".format(position))
+                    played_positions.append(position)
 
         except ValueError as err:
             print err
         else:
-            cache += potential_pieces
+            if not evaluate_piece:
+                cache += played_positions
             break #end while loop
 
     return values
