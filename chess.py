@@ -51,29 +51,10 @@ def validate_input(prompt, VALID_CHARS, cache, evaluate_piece=False):
         played_positions = []
 
         #sanitize input -- piece type upper, position lower.
-        values = [value[0:1].upper() + value[1:].lower() for value.split() in input_string.split()]
+        values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
 
         try:
-            if len(values) < 1:
-                raise ValueError("\nInput cannot be blank\n")
-
-            if evaluate_piece and len(values) > 1:
-                raise ValueError("\nCannot evaluate moves for more than one piece\n")
-
-            for value in values:
-                position = value[1:]
-
-                if len(value) != 3 or not validate_value(value, VALID_CHARS):
-                    raise ValueError("\n{0} is not a valid input.\n".format(value))
-
-                if evaluate_piece:
-                    if position not in cache:
-                        raise ValueError("\n{0} is not on the board".format(value))
-                else:
-                    if position in cache or position in played_positions:
-                        raise ValueError("\n{0} is occupied\n".format(position))
-                    played_positions.append(position)
-
+            validate_values(values, evaluate_piece, VALID_CHARS, played_positions, cache)
         except ValueError as err:
             print err
         else:
@@ -82,6 +63,28 @@ def validate_input(prompt, VALID_CHARS, cache, evaluate_piece=False):
             break #end while loop
 
     return values
+
+def validate_values(values, evaluate_piece, VALID_CHARS, played_positions, cache):
+    if len(values) < 1:
+        raise ValueError("\nInput cannot be blank\n")
+
+    if evaluate_piece and len(values) > 1:
+        raise ValueError("\nCannot evaluate moves for more than one piece\n")
+
+    for value in values:
+        position = value[1:]
+
+        if len(value) != 3 or not validate_value(value, VALID_CHARS):
+            raise ValueError("\n{0} is not a valid input.\n".format(value))
+
+        if evaluate_piece:
+            if position not in cache:
+                raise ValueError("\n{0} is not on the board".format(value))
+        else:
+            if position in cache or position in played_positions:
+                raise ValueError("\n{0} is occupied\n".format(position))
+
+            played_positions.append(position)
 
 def validate_value(value, VALID_CHARS):
     for i, char in enumerate(list(value)):
