@@ -45,46 +45,51 @@ def validate_input(prompt, VALID_CHARS, cache, evaluate_piece=False):
     Returns:
         A list of chess pieces with their positions, ex. ['Kg1', 'Rf2']
     """
-
-    while True:
+    
+    continue_input = True
+    while continue_input:
         input_string = raw_input(prompt)
-
-        #sanitize input -- piece type upper, position lower.
         values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
 
-        try:
-            validate_values(values, evaluate_piece, VALID_CHARS, cache)
-        except ValueError as err:
-            print err
-        else:
-            if not evaluate_piece:
-                cache += [value[1:] for value in values]
-            break #end while loop
+        continue_input = has_invalid_values(values, evaluate_piece, VALID_CHARS, cache)
 
     return values
 
-def validate_values(values, evaluate_piece, VALID_CHARS, cache):
+def validate_length(values, evaluate_piece):
     if len(values) < 1:
         raise ValueError("\nInput cannot be blank\n")
 
     if evaluate_piece and len(values) > 1:
         raise ValueError("\nCannot evaluate moves for more than one piece\n")
-    
+
+def validate_position(values, evaluate_piece, VALID_CHARS, cache):
     positions = []
+
     for value in values:
         position = value[1:]
-
+                                                                            
         if len(value) != 3 or not validate_value(value, VALID_CHARS):
             raise ValueError("\n{0} is not a valid input.\n".format(value))
-
+                                                                            
         if evaluate_piece:
             if position not in cache:
                 raise ValueError("\n{0} is not on the board".format(value))
         else:
             if position in cache or position in positions:
-                raise ValueError("\n{0} is occupied\n".format(position))
-
+                raise ValueError("\n{0} is occupied\n".format(position))           
             positions.append(position)
+
+def has_invalid_values(values, evaluate_piece, VALID_CHARS, cache):
+    try:
+        validate_length(values, evaluate_piece)
+        validate_position(values, evaluate_piece, VALID_CHARS, cache)
+    except ValueError as err:
+        print err
+        return True
+    else:
+        if not evaluate_piece:
+            cache += [value[1:] for value in values]
+        return False
 
 def validate_value(value, VALID_CHARS):
     for i, char in enumerate(list(value)):

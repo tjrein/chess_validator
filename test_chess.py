@@ -28,17 +28,10 @@ class TestChess(unittest.TestCase):
         self.run_input_test({})
 
     def test_too_many_inputs_evaluate_piece(self):
-        self.run_input_test({
-            'values': ['Kg1', 'Bg2'], 
-            'evaluate_piece': True
-        })
+        self.run_input_test({ 'values': ['Kg1', 'Bg2'], 'evaluate_piece': True })
 
     def test_piece_not_in_play(self):
-        self.run_input_test({
-            'values': ["Kg1"],
-            'evaluate_piece': True,
-            'cache': ["Bg2"]
-        })
+        self.run_input_test({'values': ["Kg1"], 'evaluate_piece': True, 'cache': ["Bg2"] })
     
     def test_invalid_input(self):
         self.run_input_test({'values': ['vgq'] })
@@ -55,7 +48,10 @@ class TestChess(unittest.TestCase):
     def test_same_position_previous(self):
         self.run_input_test({'values': ['Rf2'], 'cache': ['f2'] })
 
-    def run_input_test(self, update_dict):
+    def test_valid_input(self):
+        self.run_input_test({'values': ['Kg1', 'Bg2'], 'cache': ['Qc6']}, fail=False)
+
+    def run_input_test(self, update_dict, fail=True):
         args = self.default_input_args
         order = ['values', 'evaluate_piece', 'VALID_CHARS', 'cache']
 
@@ -63,20 +59,15 @@ class TestChess(unittest.TestCase):
             args[key] = val
 
         args_list = [ args[i] for i in order ]
+        result = chess.has_invalid_values(*args_list)
 
-        with self.assertRaises(ValueError):
-            chess.validate_values(*args_list)
+        self.assertTrue(result) if fail else self.assertFalse(result)
 
     def translate_position(self, position):
         values = self.value_map['chr_to_ind']
         letter, number = list(position)
         indices = [values[letter], values[number]]
         return indices
-
-    def test_map_initial_values(self):
-        self.assertEqual(self.chess_board[0][6], ('K', 'W'))
-        self.assertEqual(self.chess_board[3][5], ('B', 'B'))
-        self.assertEqual(self.chess_board[5][2], ('Q', 'B'))
 
     def run_movement_test(self, position, legal_moves):
         original_move = [self.value_map['chr_to_ind'][i] for i in position]
@@ -116,7 +107,6 @@ class TestChess(unittest.TestCase):
 
     def test_white_pawn_movement(self):
         self.run_movement_test("g3", ["g4", "f4"])
-
 
 if __name__ == "__main__":
     unittest.main()
