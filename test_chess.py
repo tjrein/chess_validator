@@ -16,7 +16,6 @@ class TestChess(unittest.TestCase):
             'values': [],
             'evaluate_piece': False,
             'VALID_CHARS': self.VALID_CHARS,
-            'played_positions': [],
             'cache': []
         }
 
@@ -58,7 +57,7 @@ class TestChess(unittest.TestCase):
 
     def run_input_test(self, update_dict):
         args = self.default_input_args
-        order = ['values', 'evaluate_piece', 'VALID_CHARS', 'played_positions', 'cache']
+        order = ['values', 'evaluate_piece', 'VALID_CHARS', 'cache']
 
         for key, val in update_dict.iteritems():
             args[key] = val

@@ -48,13 +48,12 @@ def validate_input(prompt, VALID_CHARS, cache, evaluate_piece=False):
 
     while True:
         input_string = raw_input(prompt)
-        played_positions = []
 
         #sanitize input -- piece type upper, position lower.
         values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
 
         try:
-            validate_values(values, evaluate_piece, VALID_CHARS, played_positions, cache)
+            validate_values(values, evaluate_piece, VALID_CHARS, cache)
         except ValueError as err:
             print err
         else:
@@ -64,13 +63,14 @@ def validate_input(prompt, VALID_CHARS, cache, evaluate_piece=False):
 
     return values
 
-def validate_values(values, evaluate_piece, VALID_CHARS, played_positions, cache):
+def validate_values(values, evaluate_piece, VALID_CHARS, cache):
     if len(values) < 1:
         raise ValueError("\nInput cannot be blank\n")
 
     if evaluate_piece and len(values) > 1:
         raise ValueError("\nCannot evaluate moves for more than one piece\n")
-
+    
+    positions = []
     for value in values:
         position = value[1:]
 
@@ -81,10 +81,10 @@ def validate_values(values, evaluate_piece, VALID_CHARS, played_positions, cache
             if position not in cache:
                 raise ValueError("\n{0} is not on the board".format(value))
         else:
-            if position in cache or position in played_positions:
+            if position in cache or position in positions:
                 raise ValueError("\n{0} is occupied\n".format(position))
 
-            played_positions.append(position)
+            positions.append(position)
 
 def validate_value(value, VALID_CHARS):
     for i, char in enumerate(list(value)):
