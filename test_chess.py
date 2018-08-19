@@ -6,16 +6,9 @@ class TestChess(unittest.TestCase):
 
         self.white = ["Rf1", "Ng5", "Kg1", "Pf2", "Ph3", "Pg3"]
         self.black = ["Kb8", "Ne8", "Pa7", "Pb7", "Pc7", "Ra5", "Qc6", "Bf4"]
-        self.VALID_CHARS = [
-            ['K', 'Q', 'R', 'B', 'N', 'P'],
-            ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
-            ['1', '2', '3', '4', '5', '6', '7', '8'],
-        ]
-
         self.default_input_args = {
             'values': [],
             'evaluate_piece': False,
-            'VALID_CHARS': self.VALID_CHARS,
             'cache': []
         }
 
@@ -53,7 +46,7 @@ class TestChess(unittest.TestCase):
 
     def run_input_test(self, update_dict, fail=True):
         args = self.default_input_args
-        order = ['values', 'evaluate_piece', 'VALID_CHARS', 'cache']
+        order = ['values', 'evaluate_piece', 'cache']
 
         for key, val in update_dict.iteritems():
             args[key] = val
