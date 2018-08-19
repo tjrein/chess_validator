@@ -11,8 +11,6 @@ def main():
     Outputs legal moves for a given piece
     """
 
-    
-
     cache = []
 
     white = validate_input("WHITE: ", cache)
@@ -82,7 +80,7 @@ def validate_position(values, evaluate_piece, cache):
                 raise ValueError("\n{0} is not on the board".format(value))
         else:
             if position in cache or position in positions:
-                raise ValueError("\n{0} is occupied\n".format(position)) 
+                raise ValueError("\n{0} is occupied\n".format(position))
             positions.append(position)
 
 def validate_value(value):
