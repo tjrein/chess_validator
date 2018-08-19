@@ -59,7 +59,7 @@ def validate_input(prompt, VALID_CHARS, cache, evaluate_piece=False):
             print err
         else:
             if not evaluate_piece:
-                cache += played_positions
+                cache += [value[1:] for value in values]
             break #end while loop
 
     return values
