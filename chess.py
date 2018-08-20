@@ -42,10 +42,14 @@ def validate_input(prompt, cache, evaluate_piece=False):
 
     continue_input = True
     while continue_input:
-        input_string = raw_input(prompt)
-        values = [value[0:1].upper() + value[1:].lower() for value in input_string.split()]
+        input_str = raw_input(prompt)
+        values = sanitize_input(input_str)
         continue_input = has_invalid_values(values, evaluate_piece, cache)
     return values
+
+def sanitize_input(input_str):
+    #replace any commas with space, split will strip whitespace, only first chr upper
+    return [val.capitalize() for val in input_str.replace(',', ' ').split()]
 
 def has_invalid_values(values, evaluate_piece, cache):
     try:
