@@ -3,13 +3,7 @@ This module does so and so
 """
 
 def main():
-    """Primary execution function.
-
-    Gets valid input from user.
-    Constructs chess board.
-    Maps user input configuration to chess board.
-    Outputs legal moves for a given piece
-    """
+    """Primary execution function."""
 
     cache = []
 
@@ -31,15 +25,7 @@ def main():
     output_moves(legal_moves, piece, value_map)
 
 def validate_input(prompt, cache, evaluate_piece=False):
-    """Validates a input from the user and splits the string input to an array of chess positions
-
-    Args:
-       prompt (string): A message to display to the user to prompt for input
-
-    Returns:
-        A list of chess pieces with their positions, ex. ['Kg1', 'Rf2']
-    """
-
+    """Validates a input from the user and splits the string input to an array of chess positions"""
     continue_input = True
     while continue_input:
         input_str = raw_input(prompt)
@@ -72,7 +58,6 @@ def validate_length(values, evaluate_piece):
 
 def validate_position(values, evaluate_piece, cache):
     positions = []
-
     for value in values:
         position = value[1:]
 
@@ -101,11 +86,7 @@ def validate_value(value):
     return True
 
 def generate_value_map():
-    """Generates a value map from characters to indices and vice versa
-
-    Returns:
-        A dict of dicts of value mappings
-    """
+    """Generates a value map from characters to indices and vice versa"""
 
     #Seperate dicts are needed for mapping indices back to characters otherwise keys would repeat
     value_map = {
@@ -126,14 +107,7 @@ def generate_value_map():
     return value_map
 
 def map_initial_values(white, black, values, chess_board):
-    """Places pieces onto the chessboard based on the user's board configuration.
-
-    Args:
-        white: A list of white pieces
-        black: A list of black pieces
-        values: A dict that maps characters to indices
-        chess_board: An 8x8 2d list of tuples
-    """
+    """Places pieces onto the chessboard based on the user's board configuration."""
 
     for ind, color in enumerate([black, white]):
         char = {0: 'B', 1: 'W'}[ind]
@@ -145,15 +119,7 @@ def map_initial_values(white, black, values, chess_board):
             chess_board[row][col] = (piece_type, char)
 
 def get_moves(origin, chess_board):
-    """Gets all the legal moves for a piece
-
-    Args:
-        origin: A list of indices that correspond to the original location of the piece
-        chess_board: An 8x8 2d list of tuples
-
-    Returns:
-        A list of lists containing indices that represent a piece's legal moves
-    """
+    """Returns all the legal moves for a piece"""
 
     piece, color = fetch_chess_piece(origin, chess_board)
     move_patterns = get_move_patterns(piece, color)
@@ -166,13 +132,7 @@ def get_moves(origin, chess_board):
     return legal_moves
 
 def output_moves(legal_moves, piece, value_map):
-    """Prints legal moves for a given piece
-
-    Args:
-        legal_moves: an array of legal moves
-        piece: a string, the selected piece
-        value_map: A dict of dicts of value mappings
-    """
+    """Prints legal moves for a given piece"""
 
     numbers = value_map['ind_to_num']
     letters = value_map['ind_to_letter']
@@ -181,15 +141,7 @@ def output_moves(legal_moves, piece, value_map):
     print message
 
 def get_move_patterns(piece_type, color):
-    """Accesses the movement patterns for a given piece
-
-    Args:
-        piece_type: A char representing a piece's type
-        color: A char representing the color of the piece, used for pawn
-
-    Returns:
-        A list of movement patterns for the given piece
-    """
+    """Accesses the movement patterns for a given piece"""
 
     diagonal_movement = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
     xy_movement = [[-1, 0], [1, 0], [0, 1], [0, -1]]
@@ -213,18 +165,7 @@ def get_move_patterns(piece_type, color):
     return move_patterns
 
 def validate_move(pattern, chess_board, potential_move, moves, origin):
-    """Recursive function that finds all legal moves according to a movement pattern
-
-    Args:
-        pattern: An list consisting of how many squares to move vertically and horizontally
-        chess_board: An 8x8 2d list of tuples
-        potential_move: A list of indices that correspond to a desired move
-        moves: A list of all legal moves
-        origin: A list of indices that correspond to the original location of the piece
-
-    Returns:
-       A list of all legal moves.
-    """
+    """Recursive function that finds all legal moves according to a movement pattern"""
 
     piece, color = fetch_chess_piece(origin, chess_board)
     inbounds = is_inbounds(potential_move)
@@ -256,16 +197,7 @@ def validate_move(pattern, chess_board, potential_move, moves, origin):
     return moves
 
 def determine_check(origin, potential_move, chess_board):
-    """Determines if a King would be put in check for a potential move
-
-    Args:
-        origin: A list of indices that correspond to the original location of the piece
-        potential_move: A list of indices that correspond to a desired move
-        chess_board: An 8x8 2d list of tuples
-
-    Returns:
-       A bool, whether the King would be in check
-    """
+    """Determines if a King would be put in check for a potential move"""
 
     piece, color = fetch_chess_piece(origin, chess_board)
     in_check = False
@@ -292,18 +224,7 @@ def determine_check(origin, potential_move, chess_board):
     return False
 
 def recurse_check(color, check_move, pattern, chess_board, check_pieces):
-    """Recursive helper function for determine_check, evaluates squares for check
-
-    Args:
-        color: A string, the color of the King
-        check_move: A list of indices representing a subsequent square on the board
-        pattern: A list consisting of how many squares to move vertically and horizontally
-        chess_board: An 8x8 2d list of tuples
-        check_pieces: A list of pieces that would yield check if encountered
-
-    Returns:
-        A bool, whether the King would be in check
-    """
+    """Recursive helper function for determine_check, evaluates squares for check"""
 
     in_check = False
 
@@ -321,42 +242,19 @@ def recurse_check(color, check_move, pattern, chess_board, check_pieces):
     return in_check
 
 def is_inbounds(indices):
-    """A helper function to determine if a move would be inbounds
-
-    Args:
-        indices: an array of indices of a move
-
-    Returns:
-        A bool indicating if a move would be in bounds
-    """
+    """A helper function to determine if a move would be inbounds"""
 
     row, column = indices
     return 0 <= row <= 7 and 0 <= column <= 7
 
 def fetch_chess_piece(indices, chess_board):
-    """A helper function to access pieces on the chess_board
-
-    Args:
-        indices: an array of indices
-        chess_board: An 8x8 2d list of tuples
-
-    Returns:
-        The tuple found at the corresponding indices
-    """
+    """A helper function to access pieces on the chess_board """
 
     col, row = indices
     return chess_board[row][col]
 
 def add_pattern_to_move(indices, pattern):
-    """Helper function to get indices of a new move after applying a movement pattern
-
-    Args:
-       indices: A list of indices for move
-       pattern: A list consisting of how many squares to move vertically and horizontally
-
-    Returns:
-        An list of indices representing a new move on the chess board
-    """
+    """Helper function to get indices of a new move after applying a movement pattern"""
 
     row, col = indices
     row_pat, col_pat = pattern
