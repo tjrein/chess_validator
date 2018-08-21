@@ -30,7 +30,10 @@ class TestChess(unittest.TestCase):
         self.run_input_test({'values': ['Kg1', 'Bg2'], 'evaluate_piece': True})
 
     def test_piece_not_in_play(self):
-        self.run_input_test({'values': ["Kg1"], 'evaluate_piece': True, 'cache': ["Bg2"]})
+        self.run_input_test({'values': ["Kg1"], 'evaluate_piece': True, 'cache': ["g2"]})
+
+    def test_piece_in_play(self):
+        self.run_input_test({'values': ["Kg1"], 'evaluate_piece': True, 'cache': ["g1"]}, fail=False)
 
     def test_invalid_input(self):
         self.run_input_test({'values': ['vgq']})
