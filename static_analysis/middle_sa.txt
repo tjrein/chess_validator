@@ -1,0 +1,22 @@
+************* Module chess
+W: 15,26: Unused variable 'i' (unused-variable)
+W: 15,45: Unused variable 'j' (unused-variable)
+C: 32,15: Variable name "l" doesn't conform to snake_case naming style (invalid-name)
+R: 76,32: Comparison to literal (literal-comparison)
+C:119, 4: Variable name "y" doesn't conform to snake_case naming style (invalid-name)
+C:119, 7: Variable name "z" doesn't conform to snake_case naming style (invalid-name)
+W:117, 4: Unused variable 'piece' (unused-variable)
+C:139, 7: Variable name "l" doesn't conform to snake_case naming style (invalid-name)
+C:147,12: Variable name "x" doesn't conform to snake_case naming style (invalid-name)
+W:147,12: Unused variable 'x' (unused-variable)
+R:158, 0: Too many local variables (17/15) (too-many-locals)
+C:165, 7: Variable name "l" doesn't conform to snake_case naming style (invalid-name)
+R:178, 4: Unnecessary "else" after "return" (no-else-return)
+C:179, 8: Variable name "p0" doesn't conform to snake_case naming style (invalid-name)
+C:179,12: Variable name "p1" doesn't conform to snake_case naming style (invalid-name)
+C:196, 8: Variable name "p0" doesn't conform to snake_case naming style (invalid-name)
+C:196,12: Variable name "p1" doesn't conform to snake_case naming style (invalid-name)
+
+------------------------------------------------------------------
+Your code has been rated at 8.38/10 (previous run: 8.38/10, +0.00)
+

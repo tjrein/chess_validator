@@ -180,8 +180,8 @@ def validate_move(pattern, board, potential_move, moves, origin):
     capturable = potential_color and color != potential_color
     valid_move = empty or capturable
 
-    #pawn can only move to vertically and capture diagonally
     if piece == 'P':
+        #pawn can only move vertically and capture diagonally
         valid_move = empty if pattern in [[0, 1], [0, -1]] else capturable
 
     if piece == 'K' and valid_move:
