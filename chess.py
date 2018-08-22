@@ -1,5 +1,5 @@
 """
-This module does so and so
+This module computes the legal moves for a chess piece with a provided board configuration
 """
 
 def main():
@@ -16,7 +16,7 @@ def main():
 
     white = validate_input("WHITE: ", cache)
     black = validate_input("BLACK: ", cache)
-    piece = validate_input("PIECE TO MOVE: ", cache, evaluate_piece=True)[0]
+    piece = validate_input("PIECE TO MOVE: ", cache, move_piece=True)[0]
 
     #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
     board = [[(0, 0) for _i in range(8)] for _j in range(8)]
@@ -31,16 +31,16 @@ def main():
     legal_moves = get_moves(origin, board)
     output_moves(legal_moves, piece, value_map)
 
-def validate_input(prompt, cache, evaluate_piece=False):
+def validate_input(prompt, cache, move_piece=False):
     """Prompts for user input until valid, returns list of chess positions e.g ['Kg1', 'Bg2']
 
-    When evaluate_piece is True, the list will be of a single value.
+    When move_piece is True, the list will be of a single value.
     """
     continue_input = True
     while continue_input:
         input_str = raw_input(prompt)
         values = sanitize_input(input_str)
-        continue_input = has_invalid_values(values, evaluate_piece, cache)
+        continue_input = has_invalid_values(values, move_piece, cache)
     return values
 
 def sanitize_input(input_str):
@@ -48,29 +48,29 @@ def sanitize_input(input_str):
     #replace any commas with space, split will strip whitespace, only first chr upper
     return [val.capitalize() for val in input_str.replace(',', ' ').split()]
 
-def has_invalid_values(values, evaluate_piece, cache):
+def has_invalid_values(values, move_piece, cache):
     """Validates values list, return will continue/end while loop in validate_input"""
     try:
-        validate_length(values, evaluate_piece)
-        validate_position(values, evaluate_piece, cache)
+        validate_length(values, move_piece)
+        validate_position(values, move_piece, cache)
     except ValueError as err:
         print err
         return True
     else:
-        if not evaluate_piece:
+        if not move_piece:
             #Keep track of positions across different inputs to prevent repeating
             cache += [value[1:] for value in values]
         return False
 
-def validate_length(values, evaluate_piece):
+def validate_length(values, move_piece):
     """Raises ValueError if length of values is invalid"""
     if len(values) < 1:
         raise ValueError("\nInput cannot be blank\n")
 
-    if evaluate_piece and len(values) > 1:
+    if move_piece and len(values) > 1:
         raise ValueError("\nCannot evaluate moves for more than one piece\n")
 
-def validate_position(values, evaluate_piece, cache):
+def validate_position(values, move_piece, cache):
     """Raises ValueError if a value's contents are invalid"""
     positions = []
     for value in values:
@@ -79,7 +79,7 @@ def validate_position(values, evaluate_piece, cache):
         if len(value) != 3 or not validate_value(value):
             raise ValueError("\n{0} is not a valid input.\n".format(value))
 
-        if evaluate_piece:
+        if move_piece:
             if position not in cache:
                 raise ValueError("\n{0} is not on the board".format(value))
         else:
