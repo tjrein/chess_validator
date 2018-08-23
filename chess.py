@@ -29,7 +29,7 @@ def main():
 
     origin = [char_map[i] for i in piece[1:]]
     legal_moves = get_moves(origin, board)
-    output_moves(legal_moves, piece, value_map)
+    print output_moves(legal_moves, piece, value_map)
 
 def validate_input(prompt, cache, move_piece=False):
     """Prompts for user input until valid, returns list of chess positions e.g ['Kg1', 'Bg2']
@@ -198,9 +198,8 @@ def validate_move(pattern, board, potential_move, moves, origin):
     return moves
 
 def determine_check(origin, potential_move, board):
-    """Determines if a King would be put in check for a potential move"""
+    """Determines if a King would be put in check from a potential move"""
     piece, color = fetch_chess_piece(origin, board)
-    in_check = False
 
     for piece in ['P', 'B', 'R', 'N']:
         check_moves = get_move_patterns(piece, color)
@@ -208,7 +207,7 @@ def determine_check(origin, potential_move, board):
         if piece == 'P':
             check_moves = check_moves[1:] #pawn movement and capture patterns differ
 
-        #Q shares movement patterns with B and R
+        #Q shares movement patterns with B and R, so will trigger check if encountered during move
         check_pieces = [piece, 'Q'] if piece in ['B', 'R'] else [piece]
 
         for pattern in check_moves:
@@ -262,7 +261,7 @@ def output_moves(legal_moves, piece, value_map):
     letters = value_map['ind_to_letter']
     values = " ".join(sorted([letters[move[0]] + numbers[move[1]] for move in legal_moves]))
     message = "LEGAL MOVES FOR {0}: {1}".format(piece, values)
-    print message
+    return message
 
 if __name__ == "__main__":
     main()
