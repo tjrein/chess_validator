@@ -73,15 +73,23 @@ class TestChess(unittest.TestCase):
         indices = [values[letter], values[number]]
         return indices
 
-    def run_movement_test(self, position, legal_moves):
-        original_move = [self.value_map['chr_to_ind'][i] for i in position]
-        expected = chess.get_moves(original_move, self.chess_board)
-        actual = [self.translate_position(move) for move in legal_moves]
+    def run_movement_test(self, piece, expected_pos):
+        original_move = [self.value_map['chr_to_ind'][i] for i in piece[1:]]
+        expected_moves = [self.translate_position(position) for position in expected_pos]
+        actual_moves = chess.get_moves(original_move, self.chess_board)
 
-        self.assertItemsEqual(expected, actual)
+        self.assertItemsEqual(expected_moves, actual_moves)
+        self.compare_output(actual_moves, expected_pos, piece)
+
+    def compare_output(self, actual_moves, expected_pos, piece):
+        expected_values = " ".join(sorted(expected_pos))
+        expected_msg = "LEGAL MOVES FOR {0}: {1}".format(piece, expected_values)
+        actual_msg = chess.output_moves(actual_moves, piece, self.value_map)
+
+        self.assertEqual(expected_msg, actual_msg)
 
     def test_king_movement(self):
-        self.run_movement_test("g1", ["h2"])
+        self.run_movement_test("Kg1", ["h2"])
 
     def test_in_check(self):
         original_move = self.translate_position("g1")
@@ -95,25 +103,25 @@ class TestChess(unittest.TestCase):
         horizontal = ["a6", "b6", "d6", "e6", "f6", "g6", "h6"]
         legal_moves = diagonal + vertical + horizontal
 
-        self.run_movement_test("c6", legal_moves)
+        self.run_movement_test("Qc6", legal_moves)
 
     def test_rook_movement(self):
         vertical = ["a1", "a2", "a3", "a4", "a6"]
         horizontal = ["b5", "c5", "d5", "e5", "f5", "g5"]
 
-        self.run_movement_test("a5", vertical + horizontal)
+        self.run_movement_test("Ra5", vertical + horizontal)
 
     def test_knight_movement(self):
-        self.run_movement_test("e8", ["d6", "f6", "g7"])
+        self.run_movement_test("Ke8", ["d6", "f6", "g7"])
 
     def test_bishop_movement(self):
-        self.run_movement_test("f4", ["g3", "g5", "e3", "d2", "c1", "e5", "d6"])
+        self.run_movement_test("Bf4", ["g3", "g5", "e3", "d2", "c1", "e5", "d6"])
 
     def test_black_pawn_movement(self):
-        self.run_movement_test("b7", ["b6"])
+        self.run_movement_test("Pb7", ["b6"])
 
     def test_white_pawn_movement(self):
-        self.run_movement_test("g3", ["g4", "f4"])
+        self.run_movement_test("Pg3", ["g4", "f4"])
 
 if __name__ == "__main__":
     unittest.main()
