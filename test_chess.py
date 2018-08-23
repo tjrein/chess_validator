@@ -8,7 +8,7 @@ class TestChess(unittest.TestCase):
         self.black = ["Kb8", "Ne8", "Pa7", "Pb7", "Pc7", "Ra5", "Qc6", "Bf4"]
         self.default_input_args = {
             'values': [],
-            'evaluate_piece': False,
+            'move_piece': False,
             'cache': []
         }
 
@@ -27,10 +27,13 @@ class TestChess(unittest.TestCase):
         self.run_input_test({})
 
     def test_too_many_values(self):
-        self.run_input_test({'values': ['Kg1', 'Bg2'], 'evaluate_piece': True})
+        self.run_input_test({'values': ['Kg1', 'Bg2'], 'move_piece': True})
 
     def test_piece_not_in_play(self):
-        self.run_input_test({'values': ["Kg1"], 'evaluate_piece': True, 'cache': ["Bg2"]})
+        self.run_input_test({'values': ["Kg1"], 'move_piece': True, 'cache': ["g2"]})
+
+    def test_piece_in_play(self):
+        self.run_input_test({'values': ["Kg1"], 'move_piece': True, 'cache': ["g1"]}, fail=False)
 
     def test_invalid_input(self):
         self.run_input_test({'values': ['vgq']})
@@ -56,7 +59,7 @@ class TestChess(unittest.TestCase):
         for key, val in update_dict.iteritems():
             args[key] = val
 
-        args_list = [args[i] for i in ['values', 'evaluate_piece', 'cache']]
+        args_list = [args[i] for i in ['values', 'move_piece', 'cache']]
         result = chess.has_invalid_values(*args_list)
 
         if fail:
