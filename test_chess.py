@@ -3,15 +3,17 @@ import chess
 
 class TestChess(unittest.TestCase):
     def setUp(self):
-
+        #simulate potential board configuration
         self.white = ["Rf1", "Ng5", "Kg1", "Pf2", "Ph3", "Pg3"]
         self.black = ["Kb8", "Ne8", "Pa7", "Pb7", "Pc7", "Ra5", "Qc6", "Bf4"]
+
         self.default_input_args = {
             'values': [],
             'move_piece': False,
             'cache': []
         }
 
+        #place board configuration on board
         self.chess_board = [[(0, 0) for _i in range(8)] for _j in range(8)]
         self.value_map = chess.generate_value_map()
         values = self.value_map['chr_to_ind']
@@ -61,11 +63,8 @@ class TestChess(unittest.TestCase):
 
         args_list = [args[i] for i in ['values', 'move_piece', 'cache']]
         result = chess.has_invalid_values(*args_list)
-
-        if fail:
-            self.assertTrue(result)
-        else:
-            self.assertFalse(result)
+        method = self.assertTrue if fail else self.assertFalse
+        method(result)
 
     def translate_position(self, position):
         values = self.value_map['chr_to_ind']
@@ -73,18 +72,18 @@ class TestChess(unittest.TestCase):
         indices = [values[letter], values[number]]
         return indices
 
-    def run_movement_test(self, piece, expected_pos):
-        original_move = [self.value_map['chr_to_ind'][i] for i in piece[1:]]
-        expected_moves = [self.translate_position(position) for position in expected_pos]
-        actual_moves = chess.get_moves(original_move, self.chess_board)
+    def run_movement_test(self, piece, positions):
+        origin = [self.value_map['chr_to_ind'][i] for i in piece[1:]]
+        expected_moves = [self.translate_position(position) for position in positions]
+        actual_moves = chess.get_moves(origin, self.chess_board)
 
         self.assertItemsEqual(expected_moves, actual_moves)
-        self.compare_output(actual_moves, expected_pos, piece)
+        self.compare_output(actual_moves, positions, piece)
 
-    def compare_output(self, actual_moves, expected_pos, piece):
-        expected_values = " ".join(sorted(expected_pos))
-        expected_msg = "LEGAL MOVES FOR {0}: {1}".format(piece, expected_values)
-        actual_msg = chess.output_moves(actual_moves, piece, self.value_map)
+    def compare_output(self, actual_moves, positions, piece):
+        expected_string = " ".join(sorted(positions))
+        expected_msg = "LEGAL MOVES FOR {0}: {1}".format(piece, expected_string)
+        actual_msg = chess.format_moves(actual_moves, piece, self.value_map)
 
         self.assertEqual(expected_msg, actual_msg)
 

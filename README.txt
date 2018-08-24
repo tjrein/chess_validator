@@ -50,7 +50,7 @@ Units for this program are located in the file "test_chess.py"
 It utilizes PyUnit.
 
 To run the tests, type: "python test_chess.py -b"
-NOTE: The "-b" flag is optional, I just use it to squelch error messages from being prints
+NOTE: The "-b" flag is optional, I just use it to squelch error messages from being printed
 
 There are 19 total tests, but most attempt to accomplish one of two objectives:
     1) Testing movement of pieces

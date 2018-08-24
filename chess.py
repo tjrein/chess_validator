@@ -1,5 +1,5 @@
 """
-This module computes the legal moves for a chess piece with a provided board configuration
+This module computes the legal moves for a chess piece with a provided board configuration.
 """
 
 def main():
@@ -16,7 +16,7 @@ def main():
 
     white = validate_input("WHITE: ", cache)
     black = validate_input("BLACK: ", cache)
-    piece = validate_input("PIECE TO MOVE: ", cache, move_piece=True)[0]
+    piece = validate_input("PIECE TO MOVE: ", cache, move_piece=True)[0] #single value list
 
     #creates a 8x8 array of tuples. The tuples will represent a piece's type and color.
     board = [[(0, 0) for _i in range(8)] for _j in range(8)]
@@ -24,12 +24,13 @@ def main():
     #A dict of dicts that that maps indices to characters and vice versa
     value_map = generate_value_map()
 
+    #place initial values on board
     char_map = value_map['chr_to_ind']
     map_initial_values(white, black, char_map, board)
 
-    origin = [char_map[i] for i in piece[1:]]
+    origin = [char_map[i] for i in piece[1:]] #indices for selected piece
     legal_moves = get_moves(origin, board)
-    print output_moves(legal_moves, piece, value_map)
+    print format_moves(legal_moves, piece, value_map)
 
 def validate_input(prompt, cache, move_piece=False):
     """Prompts for user input until valid, returns list of chess positions e.g ['Kg1', 'Bg2']
@@ -126,7 +127,6 @@ def map_initial_values(white, black, values, board):
     """Places pieces onto the chessboard based on the user's board configuration."""
     for i, color in enumerate([black, white]):
         char = {0: 'B', 1: 'W'}[i] #use index to access color char
-
         for played_piece in color:
             piece_type = played_piece[0:1]
             position = played_piece[1:]
@@ -242,10 +242,10 @@ def recurse_check(color, check_move, pattern, board, check_pieces):
 def is_inbounds(indices):
     """A helper function to determine if a move would be inbounds"""
     col, row = indices
-    return 0 <= row <= 7 and 0 <= col <= 7
+    return 0 <= col <= 7 and 0 <= row <= 7
 
 def fetch_chess_piece(indices, board):
-    """A helper function to access pieces on the board """
+    """A helper function to access pieces on the board"""
     col, row = indices
     return board[row][col]
 
@@ -255,8 +255,8 @@ def add_pattern_to_move(indices, pattern):
     col_pat, row_pat = pattern
     return [col + col_pat, row + row_pat]
 
-def output_moves(legal_moves, piece, value_map):
-    """Prints legal moves for a given piece"""
+def format_moves(legal_moves, piece, value_map):
+    """Formats legal moves for a given piece"""
     numbers = value_map['ind_to_num']
     letters = value_map['ind_to_letter']
     values = " ".join(sorted([letters[move[0]] + numbers[move[1]] for move in legal_moves]))
