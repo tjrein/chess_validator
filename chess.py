@@ -200,6 +200,7 @@ def validate_move(pattern, board, potential_move, moves, origin):
 def determine_check(origin, potential_move, board):
     """Determines if a King would be put in check from a potential move"""
     piece, color = fetch_chess_piece(origin, board)
+    in_check = False
 
     for piece in ['P', 'B', 'R', 'N']:
         check_moves = get_move_patterns(piece, color)
