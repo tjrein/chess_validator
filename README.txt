@@ -44,6 +44,21 @@
         3) Entering more than one value to compute moves for 
         4) Blank input
 
+==== SYSTEM STATUS ==== 
+
+Overall, the system functions as expected. However, I did encounter two situations where the code does not work as expected.
+Both issues were found late in the development process, so I was unable to fix them and I did not want to radically restructure my code near the deadline since many of my functions are recursive. 
+
+Both issues are related to a King being in check.
+
+The first issue is when calculating the moves for a piece that is not a king, the system does not take into consideration whether that move would put a king in check. 
+So, when computing the moves for a piece, those moves are considered valid, even though moving there would put the King in check which is invalid. 
+
+The second issue was more difficult to diagnose, but my funtion for determining check for a king does not calculate every move correctly. My function is designed to scan all the squares of a potential move for a piece that would induce check. 
+So, if it encounters a Queen in an open diagonal square, that move is invalid, and that part works fine.
+However, the logic is not fully flushed out. 
+If it doesn't encounter a piece, it considers that move valid, but that is not always the case for check, and as a result, it records false positives
+
 ==== UNIT TESTS ====
 
 Units for this program are located in the file "test_chess.py"
